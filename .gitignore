@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+python-fin/
 .Python
 build/
 develop-eggs/
@@ -50,6 +51,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.vscode
 
 # Translations
 *.mo

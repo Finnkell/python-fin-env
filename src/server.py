@@ -18,6 +18,10 @@ class MetaTraderConnection:
         self.by_request = None
         self.by_result = None
 
+        self.magic_number = None
+
+        self.orders_history = {}
+
     def __del__(self):
         version = mt5.version()
         mt5.shutdown()
@@ -79,11 +83,21 @@ class MetaTraderConnection:
 
 
 
+    def get_order_from_history(self, ticket):
+        if not self.orders_history[ticket]:
+            print(f'{ticket} not listed on orders history')
+        else:
+            return self.orders_history[ticket]
+
     def to_string_orders(self):
         print(f'Orders = {self.last_order}')
 
     def to_string_positions(self):
         print(f'Positions = {self.position}')
+
+
+    def set_magic_number(self, number_magic=1234):
+        self.magic_number = number_magic
 
 
 
@@ -105,10 +119,10 @@ class MetaTraderConnection:
             "price": price,
             "sl": sl,
             "tp": tp,
-            "magic": 234897,
+            "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
-            "type_time": mt5.ORDER_TIME_GTC,
+            "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 
@@ -116,8 +130,36 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
+        self.orders_history[result.order] = (request, result)
+
         return result
-    
+
+    def buy_limit(self, volume, symbol, price, sl, tp, deviation, comment):
+        
+        request = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": symbol,
+            "volume": volume,
+            "type": mt5.ORDER_TYPE_BUY_LIMIT,
+            "price": price,
+            "sl": sl,
+            "tp": tp,
+            "magic": self.magic_number,
+            "deviation": deviation,
+            "comment": comment,
+            "expiration": 0,
+            "type_time": mt5.ORDER_TIME_DAY,
+            "type_filling": mt5.ORDER_FILLING_FOK,
+        }
+
+        result = mt5.order_send(request)
+        self.by_request = request
+        self.by_result = result
+
+        self.orders_history[result.order] = (request, result)
+
+        return result
+
     def sell(self, volume, symbol, price, sl, tp, deviation, comment):
         
         request = {
@@ -128,16 +170,44 @@ class MetaTraderConnection:
             "price": price,
             "sl": sl,
             "tp": tp,
-            "magic": 234897,
+            "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
-            "type_time": mt5.ORDER_TIME_GTC,
+            "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 
         result = mt5.order_send(request)
-
         self.by_request = request
+        self.by_result = result
+
+        self.orders_history[result.order] = (request, result)
+
+        return result
+
+    def sell_limit(self, volume, symbol, price, sl, tp, deviation, comment):
+
+        request = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": symbol,
+            "volume": volume,
+            "type": mt5.ORDER_TYPE_SELL_LIMIT,
+            "price": price,
+            "sl": sl,
+            "tp": tp,
+            "magic": self.magic_number,
+            "deviation": deviation,
+            "comment": comment,
+            "expiration": 0,
+            "type_time": mt5.ORDER_TIME_DAY,
+            "type_filling": mt5.ORDER_FILLING_FOK,
+        }
+
+        result = mt5.order_send(request)
+        self.by_request = request
+        self.by_result = result
+
+        self.orders_history[result.order] = (request, result)
 
         return result
 
@@ -173,7 +243,7 @@ class MetaTraderConnection:
             "magic": magic,
             "deviation": 0,
             "comment": f"Position {self.by_request['type']} closed by {m_type}",
-            "type_time": mt5.ORDER_TIME_GTC,
+            "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 

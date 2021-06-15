@@ -1,1 +1,3 @@
 # python-fin-env
+
+### ~> pip install -r requirements.txt

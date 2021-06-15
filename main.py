@@ -10,6 +10,8 @@ SYMBOL = 'WINM21'
 
 server = MetaTraderConnection()
 
+server.set_magic_number(123456789)
+
 last_bar = 0
 
 def is_new_bar(current_time):
@@ -53,6 +55,8 @@ while server:
     if not is_new_bar(datetime.now()):
         if candles['close'].iloc[-3] > candles['close'].iloc[-2]:
             server.buy(10.0, SYMBOL, price, price - 100*point, price + 100*point, 0, "Buy")
+            print(f'{server.by_result.order} - \n{server.get_order_from_history(server.by_result.order)}')
+
 
         if candles['close'].iloc[-3] < candles['close'].iloc[-2]:
             if mt5.positions_get(symbol=SYMBOL) != ():
