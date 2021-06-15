@@ -22,6 +22,7 @@ class Candles:
         self.time.append(time)
         self.price.append(price)
         self.volume.append(volume)
+        
 
     def to_string_dataframe(self):
         print(f'{self.dataframe}')
