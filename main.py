@@ -1,4 +1,5 @@
 from src.server import MetaTraderConnection
+from src.models.arima import ARIMAModel
 from time import sleep
 from datetime import datetime
 
