@@ -237,7 +237,10 @@ class MetaTraderConnection:
 
         return result
 
-    def position_close(self, ticket): 
+    def position_close(self, ticket):
+
+        if self.get_positons(ticket) == None:
+            return None
 
         volume = self.by_request['volume']
 
