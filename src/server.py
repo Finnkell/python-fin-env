@@ -39,11 +39,25 @@ class MetaTraderConnection:
     def get_symbol_ticks(self, symbol, date, count):
         self.symbol_ticks = mt5.copy_ticks_from(symbol, date, count, mt5.COPY_TICKS_ALL)
 
-    def get_orders(self, symbol):
-        self.last_order = mt5.orders_get(symbol=symbol)
+    def get_orders(self, symbol=None, ticket=None, group=None):
+        if symbol != None:
+            self.position = mt5.positions_get(symbol=symbol)
+        elif ticket != None:
+            self.position = mt5.positions_get(ticket=ticket)
+        elif group != None:
+            self.position = mt5.positions_get(group=group)
+        else:
+            return None
 
-    def get_positons(self, symbol):
-        self.position = mt5.positions_get(symbol)
+    def get_positons(self, symbol=None, ticket=None, group=None):
+        if symbol != None:
+            self.position = mt5.positions_get(symbol=symbol)
+        elif ticket != None:
+            self.position = mt5.positions_get(ticket=ticket)
+        elif group != None:
+            self.position = mt5.positions_get(group=group)
+        else:
+            return None
 
     def get_symbol_bid(self):
         return self.symbol_info_tick.bid
@@ -81,7 +95,7 @@ class MetaTraderConnection:
     def get_position_magic(self):
         return self.position.magic
 
-
+    # Assets - Need to be reallocated
 
     def get_order_from_history(self, ticket):
         if not self.orders_history[ticket]:
@@ -99,7 +113,7 @@ class MetaTraderConnection:
     def set_magic_number(self, number_magic=1234):
         self.magic_number = number_magic
 
-
+    #    
 
     def get_symbol(self, symbol):
         selected = mt5.symbol_select(symbol)
@@ -152,7 +166,11 @@ class MetaTraderConnection:
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 
+        if mt5.order_check(request) == None:
+            return None
+
         result = mt5.order_send(request)
+
         self.by_request = request
         self.by_result = result
 
@@ -177,7 +195,11 @@ class MetaTraderConnection:
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 
+        if mt5.order_check(request) == None:
+            return None
+
         result = mt5.order_send(request)
+
         self.by_request = request
         self.by_result = result
 
@@ -185,25 +207,29 @@ class MetaTraderConnection:
 
         return result
 
-    def sell_limit(self, volume, symbol, price, sl, tp, deviation, comment):
+    def sell_limit(self, volume, symbol, price, sl, tp, comment):
 
         request = {
-            "action": mt5.TRADE_ACTION_DEAL,
+            "action": mt5.TRADE_ACTION_PENDING,
             "symbol": symbol,
+            "magic": self.magic_number,
             "volume": volume,
             "type": mt5.ORDER_TYPE_SELL_LIMIT,
+            "stoplimit": 0.0,
             "price": price,
             "sl": sl,
             "tp": tp,
-            "magic": self.magic_number,
-            "deviation": deviation,
-            "comment": comment,
+            "type_time": mt5.ORDER_TIME_GTC,
             "expiration": 0,
-            "type_time": mt5.ORDER_TIME_DAY,
-            "type_filling": mt5.ORDER_FILLING_FOK,
+            "deviation": 0,
+            "comment": comment,
         }
 
+        if mt5.order_check(request) == None:
+            return None
+
         result = mt5.order_send(request)
+
         self.by_request = request
         self.by_result = result
 
@@ -211,21 +237,24 @@ class MetaTraderConnection:
 
         return result
 
-    def position_close(self): 
+    def position_close(self, ticket):
+
+        if self.get_positons(ticket) == None:
+            return None
 
         volume = self.by_request['volume']
 
         if self.by_request['type'] == mt5.ORDER_TYPE_SELL:
             m_type = mt5.ORDER_TYPE_BUY
             m_price = self.get_symbol_ask()
-            m_position_id = self.by_result.order
+            m_position_id = ticket
             symbol = self.by_request['symbol']
             magic = self.by_request['magic']
 
         elif self.by_request['type'] == mt5.ORDER_TYPE_BUY:
             m_type = mt5.ORDER_TYPE_SELL
             m_price = self.get_symbol_bid()
-            m_position_id = self.by_result.order
+            m_position_id = ticket
             symbol = self.by_request['symbol']
             magic = self.by_request['magic']
 
@@ -245,6 +274,26 @@ class MetaTraderConnection:
             "comment": f"Position {self.by_request['type']} closed by {m_type}",
             "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
+        }
+
+        result = mt5.order_send(request)
+        
+        return result
+    
+    def position_close_by(self, ticket_in, ticket_out):
+        if self.get_positons(ticket_in) == None:
+            return None
+        elif self.get_positons(ticket_in) == None:
+            return None
+
+        request = {
+            "action": mt5.TRADE_ACTION_CLOSE_BY,
+            "position": ticket_in,
+            "position_by": ticket_out,
+            # "sl": sl,
+            # "tp": tp,
+            "magic": self.magic_number,
+            "comment": f"Position {ticket_in} closed by {ticket_out}",
         }
 
         result = mt5.order_send(request)
