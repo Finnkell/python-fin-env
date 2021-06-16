@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+python-fin/
 .Python
 build/
 develop-eggs/
@@ -26,6 +27,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+src/database/*.csv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -50,6 +52,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.vscode
 
 # Translations
 *.mo
