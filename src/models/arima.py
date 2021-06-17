@@ -1,5 +1,5 @@
 from statsmodels.tsa.arima.model import ARIMA
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, accuracy_score, median_absolute_error, mean_squared_log_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
 import numpy as np
@@ -67,7 +67,7 @@ class ARIMAModel:
 
 
     def calculate_mean_squared_error_out_of_sample(self):
-        return mean_squared_error(self.y_test[:self.len_out_of_sample], self.predict_out_of_sample)
+        return median_absolute_error(self.y_test[(len(self.y_test) - self.len_out_of_sample)-1:], self.predict_out_of_sample)
 
 
     def calculate_mean_squared_error(self):
