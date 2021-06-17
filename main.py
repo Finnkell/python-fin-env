@@ -1,27 +1,43 @@
 from src.server import MetaTraderConnection
 from src.database.database import Candles
 
+from src.models.arima import ARIMAModel
+
 from time import sleep
 from datetime import datetime
 
 import MetaTrader5 as mt5
 
 import pandas as pd
+import numpy as np
 
-SYMBOL = 'WINM21'
+# Globals
+last_bar = 0
+
+# Symbol
+SYMBOL = 'WINQ21'
 
 server = MetaTraderConnection()
 dataframe = Candles()
+arima_model = ARIMAModel()
 
 server.set_magic_number(123456789)
 
-last_bar = 0
+win_data = pd.read_csv('src/database/WIN$N_M1.csv', sep=',')
+
+arima_model.set_data(win_data['Close'])
+
+arima_model.create_model()
+arima_model.fit_model()
+arima_model.predict_model()
+arima_model.model_summary()
+
 
 def is_new_bar(current_time):
     global last_bar
 
     if last_bar == 0:
-        last_bar = current_time;
+        last_bar = current_time
         return False
 
     if last_bar > current_time:
@@ -33,6 +49,7 @@ def is_new_bar(current_time):
 
     return False 
 
+
 def get_ohlc(symbol):
     server.get_symbol_ohlc(symbol, mt5.TIMEFRAME_M1, 0, 10)
     candles = server.symbol_ohlc
@@ -40,49 +57,47 @@ def get_ohlc(symbol):
 
     return candles
 
+candles = []
+
+arima_pct = 0
+
 while server:
-    server.get_symbol_info_tick(SYMBOL)
-
-    ticks = server.symbol_info_tick
-
-    dataframe.set_ticks(ticks.time, ticks.last, ticks.volume)
-    dataframe.create_table()
-
-    dataframe.to_string_dataframe()
-
-    if datetime.now().minute % 10 == 0:
-        dataframe.save_dataframe()
-
-    print(f'last tick {ticks.last}|{datetime.now().second}')
-
-    candles = get_ohlc(SYMBOL)
-
-    # print(candles)
-
-    server.get_symbol(SYMBOL)
-
-    server.get_symbol_info_tick(SYMBOL)
+    
     server.get_symbol_info(SYMBOL)
+    server.get_symbol_info_tick(SYMBOL)
 
-    price = server.get_symbol_ask()
-    point = server.get_symbol_point()
+    ohlc = get_ohlc(SYMBOL)
 
-    order_result = []
+    # if not is_new_bar(datetime.now()):
 
-    if not is_new_bar(datetime.now()):
-        # order_result.append( server.sell_limit(10.0, SYMBOL, price + 25*point, 0, 0, "SellLimit") )
+    arima_model.set_data(ohlc['close'])
+    
+    candles.append(ohlc.iloc[4, -1])
+    
+    if len(candles) == 2:
 
-        print(f'orders_result: {order_result}')
+        predict = arima_model.real_time_predict(candles)
+        arima_pct = arima_model.calculate_mean_squared_error_out_of_sample()
 
-        if candles['close'].iloc[-3] > candles['close'].iloc[-2]:
-            # order_result.append( server.sell_limit(10.0, SYMBOL, price + 25*point, 0, 0, "SellLimit") )
-            order_result.append( server.buy(10.0, SYMBOL, price, price - 100*point, price + 100*point, 0, "Buy") )
+        print(arima_pct)
 
+        candles = []
 
-        if candles['close'].iloc[-3] < candles['close'].iloc[-2]:
-            order_result.append( server.sell(10.0, SYMBOL, price, price + 100*point, price - 100*point, 0, "Sell") )
-
-        print(f'{server.by_result.order} - \n{server.get_order_from_history(server.by_result.order)}')
-        # print(f'{server.by_result.order} - \n{server.get_order_from_history(server.by_result.order)}')
+    if arima_pct > 0.9 and arima_pct < 1 and ohlc.iloc[4, -3] > ohlc.iloc[4, -2]:
+        price = server.get_symbol_last()
+        point = server.get_symbol_point()
         
-    sleep(0.5)
+        sl = price + 10*point
+        tp = price - 5*point
+
+        server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
+
+    if arima_pct > 0.9 and arima_pct < 1 and ohlc.iloc[4, -3] < ohlc.iloc[4, -2]:
+        price = server.get_symbol_last()
+        point = server.get_symbol_point()
+
+        sl = price - 10*point
+        tp = price + 5*point
+
+        server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
+    # sleep(0.5)
