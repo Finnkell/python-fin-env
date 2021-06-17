@@ -74,30 +74,33 @@ while server:
     
     candles.append(ohlc.iloc[4, -1])
     
-    if len(candles) == 2:
+    if len(candles) == 1000:
 
         predict = arima_model.real_time_predict(candles)
         arima_pct = arima_model.calculate_mean_squared_error_out_of_sample()
 
-        print(arima_pct)
-
         candles = []
 
-    if arima_pct > 0.9 and arima_pct < 1 and ohlc.iloc[4, -3] > ohlc.iloc[4, -2]:
-        price = server.get_symbol_last()
-        point = server.get_symbol_point()
-        
-        sl = price + 10*point
-        tp = price - 5*point
+        if mt5.positions_get(symbol=SYMBOL) == ():
+            print(arima_pct)
 
-        server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
+            if arima_pct > 0 and arima_pct < 0.2:
+                if ohlc.iloc[4, -3] > ohlc.iloc[4, -2]:
+                    price = server.get_symbol_bid()
+                    point = server.get_symbol_point()
+                    
+                    sl = price + 10*point
+                    tp = price - 5*point
 
-    if arima_pct > 0.9 and arima_pct < 1 and ohlc.iloc[4, -3] < ohlc.iloc[4, -2]:
-        price = server.get_symbol_last()
-        point = server.get_symbol_point()
+                    server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
 
-        sl = price - 10*point
-        tp = price + 5*point
+            if arima_pct > 1.5 and arima_pct < 1.7:
+                if ohlc.iloc[4, -3] < ohlc.iloc[4, -2]:
+                    price = server.get_symbol_ask()
+                    point = server.get_symbol_point()
 
-        server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
-    # sleep(0.5)
+                    sl = price - 10*point
+                    tp = price + 5*point
+
+                    server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
+    

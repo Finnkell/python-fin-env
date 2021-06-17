@@ -136,11 +136,15 @@ class MetaTraderConnection:
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
-            "type_time": mt5.ORDER_TIME_DAY,
+            "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
 
+        if mt5.order_check(request) == None:
+            return None
+
         result = mt5.order_send(request)
+
         self.by_request = request
         self.by_result = result
 
