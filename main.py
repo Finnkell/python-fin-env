@@ -51,8 +51,8 @@ def is_new_bar(current_time):
 
 
 def get_ohlc(symbol):
-    server.get_symbol_ohlc(symbol, mt5.TIMEFRAME_M1, 0, 10)
-    candles = server.symbol_ohlc
+    server.set_symbol_ohlc(symbol, mt5.TIMEFRAME_M1, 0, 10)
+    candles = server.get_symbol_ohlc()
     candles = pd.DataFrame(candles)
 
     return candles
@@ -64,7 +64,7 @@ arima_pct = 0
 while server:
     
     server.get_symbol_info(SYMBOL)
-    server.get_symbol_info_tick(SYMBOL)
+    server.set_symbol_info_tick(SYMBOL)
 
     ohlc = get_ohlc(SYMBOL)
 
@@ -92,7 +92,7 @@ while server:
                     sl = price + 10*point
                     tp = price - 5*point
 
-                    server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
+                    #server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
 
             if arima_pct > 1.5 and arima_pct < 1.7:
                 if ohlc.iloc[4, -3] < ohlc.iloc[4, -2]:
@@ -102,5 +102,5 @@ while server:
                     sl = price - 10*point
                     tp = price + 5*point
 
-                    server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
+                    #server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
     
