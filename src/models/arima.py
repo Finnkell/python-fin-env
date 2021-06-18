@@ -1,12 +1,12 @@
 from statsmodels.tsa.arima.model import ARIMA
-from sklearn.metrics import mean_squared_error, accuracy_score, median_absolute_error, mean_squared_log_error, r2_score
+from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
 import numpy as np
 import pandas as pd
 
 class ARIMAModel:
-
+#%%
     def __init__(self):
         self.model = None
         self.model_fit = None
@@ -23,6 +23,7 @@ class ARIMAModel:
         self.y = None
 
         self.order = (1, 0, 0)
+#%%
 
     def set_data(self, sample, test_size=0.2, return_period=10):
         X = self.data_analysis(np.array(sample).reshape(-1, 1))
@@ -36,7 +37,7 @@ class ARIMAModel:
         self.X_train, self.X_test = X[0: train_size], X[train_size:len(X)]
         self.y_train, self.y_test = y[0: train_size], y[train_size:len(X)]
 
-
+#%%
     def data_analysis(self, sample):
         dataframe = pd.DataFrame(sample)
         scaler = StandardScaler()
@@ -45,10 +46,7 @@ class ARIMAModel:
         transformed_dataframe = scaler.transform(sample)
 
         return pd.DataFrame(transformed_dataframe, columns=['Close'])
-
-    def __str__(self):
-        return f'\n{self.dataset}\n'
-
+#%%
     def create_model(self):
         self.model = ARIMA(endog=self.X_train, exog=self.y_train, order=self.order)
 
@@ -65,9 +63,8 @@ class ARIMAModel:
 
         return self.predict_out_of_sample
 
-
     def calculate_mean_squared_error_out_of_sample(self):
-        return median_absolute_error(self.y_test[(len(self.y_test) - self.len_out_of_sample)-1:], self.predict_out_of_sample)
+        return mean_squared_error(self.y_test[(len(self.y_test) - self.len_out_of_sample)-1:], self.predict_out_of_sample)
 
 
     def calculate_mean_squared_error(self):

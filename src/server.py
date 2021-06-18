@@ -3,17 +3,19 @@ import MetaTrader5 as mt5
 class MetaTraderConnection:
     
     def __init__(self):
+#%%
         if not mt5.initialize():
             mt5.shutdown()
         else:
             print(f'Connect Sucessfully {mt5.version()}')
-        
+#%%     
         self.symbol_ohlc = None
         self.symbol_tick = None
         self.symbol_info = None
         self.symbol_info_tick = None
         self.last_order = None
         self.position = None
+        self.order = None
 
         self.by_request = None
         self.by_result = None
@@ -22,16 +24,26 @@ class MetaTraderConnection:
 
         self.orders_history = {}
 
+#%%
     def __del__(self):
         version = mt5.version()
         mt5.shutdown()
         print(f'Disconnected from {version}')
+#%%
     
-    def get_symbol_ohlc(self, symbol, timeframe, date, count):
+    def set_symbol_ohlc(self, symbol, timeframe, date, count):
+        self.verify_symbol(symbol)
         self.symbol_ohlc = mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
-    def get_symbol_info_tick(self, symbol):
+    def get_symbol_ohlc(self):
+        return self.symbol_ohlc if self.symbol_ohlc != None else None
+
+    def set_symbol_info_tick(self, symbol):
+        self.verify_symbol(symbol)
         self.symbol_info_tick = mt5.symbol_info_tick(symbol)
+
+    def get_symbol_info_tick(self):
+        return self.symbol_info_tick
 
     def get_symbol_info(self, symbol):
         self.symbol_info = mt5.symbol_info(symbol)
@@ -41,11 +53,11 @@ class MetaTraderConnection:
 
     def get_orders(self, symbol=None, ticket=None, group=None):
         if symbol != None:
-            self.position = mt5.positions_get(symbol=symbol)
+            self.order = mt5.orders_get(symbol=symbol)
         elif ticket != None:
-            self.position = mt5.positions_get(ticket=ticket)
+            self.order = mt5.orders_get(ticket=ticket)
         elif group != None:
-            self.position = mt5.positions_get(group=group)
+            self.order = mt5.orders_get(group=group)
         else:
             return None
 
@@ -113,7 +125,7 @@ class MetaTraderConnection:
     def set_magic_number(self, number_magic=1234):
         self.magic_number = number_magic
 
-    #    
+        
 
     def get_symbol(self, symbol):
         selected = mt5.symbol_select(symbol)
@@ -303,3 +315,11 @@ class MetaTraderConnection:
         result = mt5.order_send(request)
         
         return result
+
+    def verify_symbol(self):
+
+        if symbol == None:
+            raise ValueError
+
+        if not mt5.symbol_select(symbol):
+            raise NameError
