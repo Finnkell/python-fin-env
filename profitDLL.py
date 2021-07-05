@@ -152,6 +152,7 @@ def stateCallback(nType, nResult):
     global bAtivo
     global bMarketConnected
     global bConnectado
+    global bBrokerConnected
     
     nConnStateType = nType
     result = nResult
@@ -165,13 +166,13 @@ def stateCallback(nType, nResult):
             print('Login: ' + str(result))
     elif nConnStateType == 1:
         if result == 5:
-            # bBrokerConnected = True
+            bBrokerConnected = True
             print("Broker: Conectado.")            
         elif result > 2:
-            # bBrokerConnected = False
+            bBrokerConnected = False
             print("Broker: Sem conexão com corretora.")            
         else:
-            # bBrokerConnected = False
+            bBrokerConnected = False
             print("Broker: Sem conexão com servidores (" + str(result) + ")")
             
     elif nConnStateType == 2:  # notificacoes de login no Market
@@ -362,12 +363,14 @@ def SenSellOrder() :
     qtd = int(1)
     preco = float(100000)
     # precoStop = float(100000)
-    nProfitID = profit_dll.SendSellOrder (c_wchar_p('CONTA'), c_wchar_p('BROKER'),
-                                          c_wchar_p('PASS'),c_wchar_p('ATIVO'),
-                                          c_wchar_p('BOLSA'),
-                                          c_double(preco), c_int(qtd));
+    nProfitID = profit_dll.SendSellOrder (c_wchar_p(33001), c_wchar_p( ),
+                                          c_wchar_p(System13),c_wchar_p(TRPL4F),
+                                          c_wchar_p(B),
+                                          c_double(25.80), c_int(qtd));
 
     print(str(nProfitID))
+
+    print(profit_dll.GetPosition(c_wchar_p(33001), c_wchar_p( ), c_wchar_p(TRPL4F), c_wchar_p(B)))
 
 def wait_login():    
     global profit_dll
@@ -414,17 +417,14 @@ def unsubscribeTicker():
 def dllStart():    
     try:
         global profit_dll
-        key = input("Chave de acesso: ")
+        key = str(1127858027317301205)
         
         bRoteamento = True
         
         if bRoteamento :            
-            result = profit_dll.DLLInitialize(c_wchar_p(key), stateCallback, historyCallBack, orderChangeCallBack, accountCallback,
-                                              newTradeCallback, newDailyCallback, priceBookCallback,
-                                              offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
-        else :
-            result = profit_dll.InitializeMarket(c_wchar_p(key), stateCallback, newTradeCallback, newDailyCallback, priceBookCallback,
-                                                 offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
+            result = profit_dll.DLLInitialize(c_wchar_p(key), stateCallback, historyCallBack, orderChangeCallBack, accountCallback, newTradeCallback, newDailyCallback, priceBookCallback, offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
+        else:
+            result = profit_dll.InitializeMarket(c_wchar_p(key), stateCallback, newTradeCallback, newDailyCallback, priceBookCallback, offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
 
         profit_dll.SendSellOrder.restype = c_longlong
         profit_dll.SendBuyOrder.restype = c_longlong
@@ -456,6 +456,8 @@ if __name__ == '__main__':
             unsubscribeTicker()
         elif strInput == 'offerbook':
             subscribeOffer()
+        elif strInput == 'send':
+            SenSellOrder()
 
     dllEnd()
 

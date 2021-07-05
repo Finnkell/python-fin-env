@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from ctypes import *
+
 @dataclass
 class TAssetID(Structure):
     _fields_ = [("ticker", c_wchar_p),
@@ -12,7 +15,6 @@ class TGroupOffer(Structure):
                 ("nAgent", c_int),
                 ("sPrice", c_double),
                 ("strDtOffer", c_int)]
-
 
 @dataclass
 class TGroupPrice(Structure):
@@ -33,11 +35,13 @@ class TNewTradeCallback(Structure):
                 ("tradeType", c_int),
                 ("bIsEdit", c_int)]
 
+
 @dataclass
 class TChangeCotation(Structure):
     _fields_ = [("asset_id", TAssetID),
                 ("date", c_wchar_p),
                 ("last_price", c_double)]
+
 
 @dataclass
 class TNewDailyCallback(Structure):
@@ -62,7 +66,6 @@ class TNewDailyCallback(Structure):
                 ("nNegSeller", c_int)]
 
 
-
 @dataclass
 class TNewHistoryCallback(Structure):
     _fields_ = [("assetId", TAssetID),
@@ -74,7 +77,6 @@ class TNewHistoryCallback(Structure):
                 ("buyAgent", c_int),
                 ("sellAgent", c_int),
                 ("tradeType", c_int)]
-
 
 
 @dataclass
@@ -91,7 +93,6 @@ class TNewTinyBookCallBack(Structure):
                 ("side", c_int)]
 
 
-
 @dataclass
 class TPriceBookCallback(Structure):
     _fields_ = [("assetId", TAssetID),
@@ -103,7 +104,6 @@ class TPriceBookCallback(Structure):
                 ("sprice", c_double),
                 ("pArraySell", POINTER(c_int)),
                 ("pArrayBuy", POINTER(c_int))]
-
 
 
 @dataclass
@@ -130,3 +130,5 @@ NL_ERR_INIT = 80
 NL_OK = 0
 NL_ERR_INVALID_ARGS = 90
 NL_ERR_INTERNAL_ERROR = 100
+
+#BEGIN DEF

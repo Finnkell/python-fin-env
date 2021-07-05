@@ -1,106 +1,33 @@
-from src.server import MetaTraderConnection
-from src.database.database import Candles
-
-from src.models.arima import ARIMAModel
-
+from src.servers.server_profit import ProfitConnection
 from time import sleep
 from datetime import datetime
 
-import MetaTrader5 as mt5
+connection = ProfitConnection(key=1127858027317301205)
 
-import pandas as pd
-import numpy as np
+ativo = 'WINQ21'
+bolsa = 'F'
+t_flag = 'OHLC'
 
-# Globals
-last_bar = 0
+while True:
+    print('-------------------------------------')
+    connection.get_account()
 
-# Symbol
-SYMBOL = 'WINQ21'
+    connection.subscribe_offer_book(ticker=ativo, bolsa=bolsa)
 
-server = MetaTraderConnection()
-dataframe = Candles()
-arima_model = ARIMAModel()
+    connection.buy_limit_order(volume='10', ticker=ativo, price='127455.0', sl=0, tp=0)
 
-server.set_magic_number(123456789)
-
-win_data = pd.read_csv('src/database/WIN$N_M1.csv', sep=',')
-
-arima_model.set_data(win_data['Close'])
-
-arima_model.create_model()
-arima_model.fit_model()
-arima_model.predict_model()
-arima_model.model_summary()
+    sleep(5)
 
 
-def is_new_bar(current_time):
-    global last_bar
+    connection.sell_limit_order(volume='10', ticker=ativo, price='127455.0', sl=0, tp=0)
 
-    if last_bar == 0:
-        last_bar = current_time
-        return False
+    print(f'Position: {connection.get_position(ativo)}')
 
-    if last_bar > current_time:
-        return False
+    connection.send_zero_position(ticker=ativo, price='127500.0')
 
-    if last_bar < current_time:
-        last_bar = current_time
-        return True
+    sleep(5)
 
-    return False 
+    print(f'Ticker Info: {connection.get_ticker_info(ticker=ativo, bolsa=bolsa)}')
 
 
-def get_ohlc(symbol):
-    server.set_symbol_ohlc(symbol, mt5.TIMEFRAME_M1, 0, 10)
-    candles = server.get_symbol_ohlc()
-    candles = pd.DataFrame(candles)
-
-    return candles
-
-candles = []
-
-arima_pct = 0
-
-while server:
-    
-    server.get_symbol_info(SYMBOL)
-    server.set_symbol_info_tick(SYMBOL)
-
-    ohlc = get_ohlc(SYMBOL)
-
-    # if not is_new_bar(datetime.now()):
-
-    arima_model.set_data(ohlc['close'])
-    
-    candles.append(ohlc.iloc[4, -1])
-    
-    if len(candles) == 1000:
-
-        predict = arima_model.real_time_predict(candles)
-        arima_pct = arima_model.calculate_mean_squared_error_out_of_sample()
-
-        candles = []
-
-        if mt5.positions_get(symbol=SYMBOL) == ():
-            print(arima_pct)
-
-            if arima_pct > 0 and arima_pct < 0.2:
-                if ohlc.iloc[4, -3] > ohlc.iloc[4, -2]:
-                    price = server.get_symbol_bid()
-                    point = server.get_symbol_point()
-                    
-                    sl = price + 10*point
-                    tp = price - 5*point
-
-                    #server.sell(1.0, SYMBOL, price, sl, tp, 0, "Venda")
-
-            if arima_pct > 1.5 and arima_pct < 1.7:
-                if ohlc.iloc[4, -3] < ohlc.iloc[4, -2]:
-                    price = server.get_symbol_ask()
-                    point = server.get_symbol_point()
-
-                    sl = price - 10*point
-                    tp = price + 5*point
-
-                    #server.buy(1.0, SYMBOL, price, sl, tp, 0, "Compra")
-    
+# datetime('2021', '07', '05'), datetime.now()
