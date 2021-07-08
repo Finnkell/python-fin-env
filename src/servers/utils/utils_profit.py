@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from ctypes import *
 
+
 @dataclass
 class TAssetID(Structure):
     _fields_ = [("ticker", c_wchar_p),
                 ("bolsa", c_wchar_p),
                 ("feed", c_int)]
+
 
 @dataclass
 class TGroupOffer(Structure):
@@ -16,11 +18,13 @@ class TGroupOffer(Structure):
                 ("sPrice", c_double),
                 ("strDtOffer", c_int)]
 
+
 @dataclass
 class TGroupPrice(Structure):
     _fields_ = [("nQtd", c_int),
                 ("nCount", c_int),
                 ("sPrice", c_double)]
+
 
 @dataclass
 class TNewTradeCallback(Structure):
@@ -125,10 +129,9 @@ class TOfferBookCallback(Structure):
                 ("pArraySell", POINTER(c_int)),
                 ("pArrayBuy", POINTER(c_int))]
 
+
 # Error Codes
 NL_ERR_INIT = 80
 NL_OK = 0
 NL_ERR_INVALID_ARGS = 90
 NL_ERR_INTERNAL_ERROR = 100
-
-#BEGIN DEF

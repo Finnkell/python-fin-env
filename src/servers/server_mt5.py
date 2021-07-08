@@ -29,8 +29,7 @@ class MetaTraderConnection:
         version = mt5.version()
         mt5.shutdown()
         print(f'Disconnected from {version}')
-#%%
-    
+#%% 
     def set_symbol_ohlc(self, symbol, timeframe, date, count):
         self.verify_symbol(symbol)
         self.symbol_ohlc = mt5.copy_rates_from_pos(symbol, timeframe, date, count)
