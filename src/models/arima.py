@@ -46,6 +46,7 @@ class ARIMAModel:
         transformed_dataframe = scaler.transform(sample)
 
         return pd.DataFrame(transformed_dataframe, columns=['Close'])
+        
 #%%
     def create_model(self):
         self.model = ARIMA(endog=self.X_train, exog=self.y_train, order=self.order)

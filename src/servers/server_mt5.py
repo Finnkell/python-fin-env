@@ -251,6 +251,35 @@ class MetaTraderConnection:
         self.orders_history[result.order] = (request, result)
 
         return result
+    
+    def order_modify(self, volume, symbol, price, sl, tp, deviation, comment):
+        
+        request = {
+            "action": mt5.TRADE_ACTION_MODIFY,
+            "symbol": symbol,
+            "volume": volume,
+            "price": price,
+            "sl": sl,
+            "tp": tp,
+            "magic": self.magic_number,
+            "deviation": deviation,
+            "comment": comment,
+            "expiration": 0,
+            "type_time": mt5.ORDER_TIME_DAY,
+            "type_filling": mt5.ORDER_FILLING_FOK,
+        }
+
+        result = mt5.order_check(request)
+
+        if result == None:
+            return None
+
+        self.by_request = request
+        self.by_result = result
+
+        self.orders_history[result.order] = (request, result)
+
+        return result
 
     def position_close(self, ticket):
 

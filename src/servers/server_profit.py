@@ -728,9 +728,29 @@ def price_book_callback(asset_id, n_action, n_position, side, n_qtd, n_count, s_
 def new_trade_callback(asset_id, date, trade_number, price, vol, qtd, buy_agent, sell_agent, trade_type, b_is_edit):
     global ticker_flag
 
+    global mt_ticker
+    global mt_date
+    global mt_trade_number
+    global mt_price
+    global mt_trade_type
+    global mt_volume
+    global mt_qtd
+    global mt_agent_buy
+    global mt_agent_sell  
+
     if ticker_flag != 'OHLC' and ticker_flag == 'TICK': 
         print(f'| New Trade Callback | -> | Ticker: {asset_id.ticker} | Trade : ( {date}, {trade_number}, {price} ) | Trade Type: {trade_type} | Volume: {vol} | Qtd: {qtd} | Buy agent: {agent_index[str(buy_agent)]} | Sell agent: {agent_index[str(sell_agent)]} |')
-        # sleep(0.9)
+
+        mt_ticker = asset_id.ticker
+        mt_date = date
+        mt_trade_number = tradeNumber
+        mt_price = price
+        mt_trade_type = trade_type
+        mt_volume = vol
+        mt_qtd = qtd
+        mt_agent_buy = agent_index[str(buy_agent)]
+        mt_agent_sell = agent_index[str(sell_agent)]
+
     return
 
 @WINFUNCTYPE(None, TAssetID, c_double, c_int, c_int)
@@ -850,3 +870,31 @@ def descript_price_array(price_array):
         price_array_descripted.append([price, qtd, agent, offer_id, date])
 
     return price_array_descripted
+
+
+# %% EXPORTS
+
+mt_ticker = None
+mt_date = None
+mt_trade_number = None
+mt_price = None
+mt_trade_type = None
+mt_volume = None
+mt_qtd = None
+mt_agent_buy = None
+mt_agent_sell = None
+
+
+def export_tick_by_tick():
+    global mt_ticker
+    global mt_date
+    global mt_trade_number
+    global mt_price
+    global mt_trade_type
+    global mt_volume
+    global mt_qtd
+    global mt_agent_buy
+    global mt_agent_sell  
+
+    return mt_ticker, mt_date, mt_trade_number, mt_price, mt_qtd, mt_volume, mt_agent_buy, mt_agent_sell, mt_trade_type
+
