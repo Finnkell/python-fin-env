@@ -422,9 +422,28 @@ def dllStart():
         bRoteamento = True
         
         if bRoteamento :            
-            result = profit_dll.DLLInitialize(c_wchar_p(key), stateCallback, historyCallBack, orderChangeCallBack, accountCallback, newTradeCallback, newDailyCallback, priceBookCallback, offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
+            result = profit_dll.DLLInitialize(c_wchar_p(key), 
+                                stateCallback, 
+                                historyCallBack, 
+                                orderChangeCallBack, 
+                                accountCallback, 
+                                newTradeCallback, 
+                                newDailyCallback, 
+                                priceBookCallback, 
+                                offerBookCallback, 
+                                newHistoryCallback, 
+                                progressCallBack, 
+                                newTinyBookCallBack)
         else:
-            result = profit_dll.InitializeMarket(c_wchar_p(key), stateCallback, newTradeCallback, newDailyCallback, priceBookCallback, offerBookCallback, newHistoryCallback, progressCallBack, newTinyBookCallBack)
+            result = profit_dll.InitializeMarket(c_wchar_p(key), 
+                                stateCallback, 
+                                newTradeCallback, 
+                                newDailyCallback, 
+                                priceBookCallback, 
+                                offerBookCallback, 
+                                newHistoryCallback, 
+                                progressCallBack, 
+                                newTinyBookCallBack)
 
         profit_dll.SendSellOrder.restype = c_longlong
         profit_dll.SendBuyOrder.restype = c_longlong
