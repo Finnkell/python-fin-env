@@ -571,6 +571,8 @@ class ProfitConnection:
 
 # %%
     def get_last_price(self):
+        self.change_cotation()
+
         return self.last_price
 
 # %%
@@ -615,6 +617,8 @@ class ProfitConnection:
 # %%
     def change_cotation(self):
         if self.api == None: return None
+
+        self.set_last_price()
 
         result = self.api.SetChangeCotationCallback(change_cotation_callback)
 
@@ -897,4 +901,3 @@ def export_tick_by_tick():
     global mt_agent_sell  
 
     return mt_ticker, mt_date, mt_trade_number, mt_price, mt_qtd, mt_volume, mt_agent_buy, mt_agent_sell, mt_trade_type
-
