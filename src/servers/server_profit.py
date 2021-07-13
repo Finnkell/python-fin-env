@@ -571,7 +571,7 @@ class ProfitConnection:
 
 # %%
     def get_last_price(self):
-        return self.last_price
+        self.change_cotation()
 
 # %%
     def set_candle(self):
@@ -607,7 +607,7 @@ class ProfitConnection:
         pass
 
 # %%
-    def get_history():
+    def get_history(self):
         if self.api == None: return None
 
         return self.api.SetAdjustHistoryCallback()
@@ -615,6 +615,8 @@ class ProfitConnection:
 # %%
     def change_cotation(self):
         if self.api == None: return None
+
+        self.set_last_price()
 
         result = self.api.SetChangeCotationCallback(change_cotation_callback)
 
@@ -692,9 +694,9 @@ def progress_callback(asset_id, n_progress):
     return
 
 
-@WINFUNCTYPE(None, TAssetID, c_int, c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_long, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p)
+@WINFUNCTYPE(None, TAssetID, c_int, c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_int64, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p)
 def history_callback(r_asset_id, n_corretora, n_qtd, n_trade_qtd, n_leaves_qtd, side, s_price, s_stop_price, s_avg_price, n_profit_id, tipo_ordem, conta, titular, cl_ord_id, status, date):
-    print(f'| History Callback | -> | Corretora: {n_corretora} | Conta: {conta} | Quantidade: {n_qtd} | Quantidade executada: {n_trade_qtd} | Side: {side} | Price: {s_price} | Avg Price: {s_avg_price} |Tipo de Ordem: {tipo_ordem} | Order ID: {cl_ord_id} Status: {status} | Date: {date}\n')
+    print(f'| History Callback | -> | Asset: {r_asset_id.ticker} | Corretora: {n_corretora} | Quantidade: {n_qtd} | Quantidade executada: {n_trade_qtd} | Leaves Qtd: {n_leaves_qtd} |  Side: {side} | Price: {s_price} | Stop Price: {s_stop_price} | Avg Price: {s_avg_price} | Profit Id: {n_profit_id} | Tipo de Ordem: {tipo_ordem} | Conta: {conta} | Titular: {titular} | Order ID: {cl_ord_id} | Status: {status} | Date: {date}\n')
     return
 
 
@@ -897,4 +899,3 @@ def export_tick_by_tick():
     global mt_agent_sell  
 
     return mt_ticker, mt_date, mt_trade_number, mt_price, mt_qtd, mt_volume, mt_agent_buy, mt_agent_sell, mt_trade_type
-

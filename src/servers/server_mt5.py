@@ -11,9 +11,9 @@ class MetaTraderConnection:
 #%%     
         self.symbol_ohlc = None
         self.symbol_tick = None
-        self.symbol_info = None
-        self.symbol_info_tick = None
-        self.last_order = None
+        self.symbol_info = {}
+        self.symbol_info_tick = {}
+        self.last_order = {}
         self.position = None
         self.order = None
 
@@ -39,16 +39,27 @@ class MetaTraderConnection:
 
     def set_symbol_info_tick(self, symbol='WINQ21'):
         self.verify_symbol(symbol)
-        self.symbol_info_tick = mt5.symbol_info_tick(symbol)
+        
+        symbol_info_tick_dict = mt5.symbol_info_tick(symbol)._asdict()
+        for key in symbol_info_tick_dict.keys():
+            self.symbol_info_tick[key] = symbol_info_tick_dict[key]
 
-    def get_symbol_info_tick(self):
-        return self.symbol_info_tick
+    def get_symbol_info_tick(self, ticker):
+        self.set_symbol_info_tick(symbol=ticker)
 
-    def get_symbol_info(self, symbol):
-        self.symbol_info = mt5.symbol_info(symbol)
+    def set_symbol_info(self, symbol):
+        self.verify_symbol(symbol)
 
-    def get_symbol_ticks(self, symbol, date, count):
+        symbol_info_dict = mt5.symbol_info(symbol)._asdict()
+
+        for key in symbol_info_dict.keys():
+            self.symbol_info[key] = symbol_info_dict[key]
+
+    def set_symbol_ticks(self, symbol, date, count):
         self.symbol_ticks = mt5.copy_ticks_from(symbol, date, count, mt5.COPY_TICKS_ALL)
+
+    def get_symbol_ticks(self):
+        return self.symbol_ticks[0][1] if self.symbol_ticks[0][1] != None else None
 
     def get_orders(self, symbol=None, ticket=None, group=None):
         if symbol != None:
@@ -71,19 +82,19 @@ class MetaTraderConnection:
             return None
 
     def get_symbol_bid(self):
-        return self.symbol_info_tick.bid
+        return self.symbol_info_tickself['bid']
 
     def get_symbol_ask(self):
-        return self.symbol_info_tick.ask
+        return self.symbol_info_tick['ask']
 
     def get_symbol_volume(self):
-        return self.symbol_info_tick.volume
+        return self.symbol_info_tick['volume']
 
     def get_symbol_last(self):
-        return self.symbol_info_tick.last
+        return self.symbol_info_tick['last']
 
     def get_symbol_point(self):
-        return self.symbol_info.point
+        return self.symbol_info['point']
 
     def get_order_ticket(self):
         return self.last_order.ticket
@@ -134,7 +145,7 @@ class MetaTraderConnection:
         else:
             pass
     
-    def buy(self, volume, symbol, price, sl, tp, deviation, comment):
+    def buy(self, volume, symbol, price, sl, tp, deviation, comment=''):
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -163,7 +174,7 @@ class MetaTraderConnection:
 
         return result
 
-    def buy_limit(self, volume, symbol, price, sl, tp, deviation, comment):
+    def buy_limit(self, volume, symbol, price, sl, tp, deviation, comment=''):
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -193,7 +204,7 @@ class MetaTraderConnection:
 
         return result
 
-    def sell(self, volume, symbol, price, sl, tp, deviation, comment):
+    def sell(self, volume, symbol, price, sl, tp, deviation, comment=''):
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -222,7 +233,7 @@ class MetaTraderConnection:
 
         return result
 
-    def sell_limit(self, volume, symbol, price, sl, tp, comment):
+    def sell_limit(self, volume, symbol, price, sl, tp, comment=''):
 
         request = {
             "action": mt5.TRADE_ACTION_PENDING,
@@ -252,7 +263,7 @@ class MetaTraderConnection:
 
         return result
     
-    def order_modify(self, volume, symbol, price, sl, tp, deviation, comment):
+    def order_modify(self, volume, symbol, price, sl, tp, deviation, comment=''):
         
         request = {
             "action": mt5.TRADE_ACTION_MODIFY,

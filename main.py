@@ -1,12 +1,20 @@
 from src.servers.server_mt5 import MetaTraderConnection
+
 from time import sleep
 from datetime import datetime
 from src.models.svm import SVRModel
 
+from multiprocessing import Queue, Pool, Process
+
+
+ativo = 'WINQ21'
+bolsa = 'F'
+t_flag = 'TICK'
 
 import threading
 import concurrent.futures
 import subprocess
+
 
 import time
 import random

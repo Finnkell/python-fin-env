@@ -37,18 +37,27 @@ class Renko:
             elif prices[_i - 1] == prices[_i] or (prices[_i - 2] > prices[_i - 1] and abs(prices[_i] - prices[_i - 1]) == 5 and prices[_i - 1] < prices[_i]):
                 renko.append(0)
 
-            elif top > prices[_i] and abs(top - prices[_i]) == 10:
-                renko.append(-2)
+            elif top > prices[_i] and abs(top - prices[_i]) >= 10:
+                renko_size = abs(top - prices[_i])
+
+                renko_size = renko_size - 10
+                top = prices[_i]
+
+                renko.append(-1-(renko_size/5))
 
             elif top < prices[_i] and abs(top - prices[_i]) == 10:
-                top = prices[_i]
-                renko.append(2)
+                renko_size = abs(top - prices[_i])
 
-            elif prices[_i - 1] < prices[_i] and abs(prices[_i - 1] - prices[_i]) == 5:
+                renko_size = renko_size - 10
+                top = prices[_i]
+
+                renko.append(-1-(renko_size/5))
+
+            elif prices[_i - 1] < prices[_i] and abs(top - prices[_i]) == 5:
                 top = prices[_i]
                 renko.append(1)
 
-            elif prices[_i - 1] > prices[_i] and abs(prices[_i - 1] - prices[_i]) == 5:
+            elif prices[_i - 1] > prices[_i] and abs(prices[_i - 1] - prices[_i]) == 5 and abs(top - prices[_i]) == 5:
                 renko.append(-1)
 
             else:
