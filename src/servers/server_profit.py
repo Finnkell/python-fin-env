@@ -739,11 +739,11 @@ def new_trade_callback(asset_id, date, trade_number, price, vol, qtd, buy_agent,
     global mt_agent_sell  
 
     if ticker_flag != 'OHLC' and ticker_flag == 'TICK': 
-        print(f'| New Trade Callback | -> | Ticker: {asset_id.ticker} | Trade : ( {date}, {trade_number}, {price} ) | Trade Type: {trade_type} | Volume: {vol} | Qtd: {qtd} | Buy agent: {agent_index[str(buy_agent)]} | Sell agent: {agent_index[str(sell_agent)]} |')
+        # print(f'| New Trade Callback | -> | Ticker: {asset_id.ticker} | Trade : ( {date}, {trade_number}, {price} ) | Trade Type: {trade_type} | Volume: {vol} | Qtd: {qtd} | Buy agent: {agent_index[str(buy_agent)]} | Sell agent: {agent_index[str(sell_agent)]} |')
 
         mt_ticker = asset_id.ticker
         mt_date = date
-        mt_trade_number = tradeNumber
+        mt_trade_number = trade_number
         mt_price = price
         mt_trade_type = trade_type
         mt_volume = vol
