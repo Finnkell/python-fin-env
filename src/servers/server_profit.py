@@ -573,8 +573,6 @@ class ProfitConnection:
     def get_last_price(self):
         self.change_cotation()
 
-        return self.last_price
-
 # %%
     def set_candle(self):
         global c_open
@@ -609,7 +607,7 @@ class ProfitConnection:
         pass
 
 # %%
-    def get_history():
+    def get_history(self):
         if self.api == None: return None
 
         return self.api.SetAdjustHistoryCallback()
@@ -696,9 +694,9 @@ def progress_callback(asset_id, n_progress):
     return
 
 
-@WINFUNCTYPE(None, TAssetID, c_int, c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_long, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p)
+@WINFUNCTYPE(None, TAssetID, c_int, c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_int64, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p, c_wchar_p)
 def history_callback(r_asset_id, n_corretora, n_qtd, n_trade_qtd, n_leaves_qtd, side, s_price, s_stop_price, s_avg_price, n_profit_id, tipo_ordem, conta, titular, cl_ord_id, status, date):
-    print(f'| History Callback | -> | Corretora: {n_corretora} | Conta: {conta} | Quantidade: {n_qtd} | Quantidade executada: {n_trade_qtd} | Side: {side} | Price: {s_price} | Avg Price: {s_avg_price} |Tipo de Ordem: {tipo_ordem} | Order ID: {cl_ord_id} Status: {status} | Date: {date}\n')
+    print(f'| History Callback | -> | Asset: {r_asset_id.ticker} | Corretora: {n_corretora} | Quantidade: {n_qtd} | Quantidade executada: {n_trade_qtd} | Leaves Qtd: {n_leaves_qtd} |  Side: {side} | Price: {s_price} | Stop Price: {s_stop_price} | Avg Price: {s_avg_price} | Profit Id: {n_profit_id} | Tipo de Ordem: {tipo_ordem} | Conta: {conta} | Titular: {titular} | Order ID: {cl_ord_id} | Status: {status} | Date: {date}\n')
     return
 
 
@@ -743,11 +741,11 @@ def new_trade_callback(asset_id, date, trade_number, price, vol, qtd, buy_agent,
     global mt_agent_sell  
 
     if ticker_flag != 'OHLC' and ticker_flag == 'TICK': 
-        print(f'| New Trade Callback | -> | Ticker: {asset_id.ticker} | Trade : ( {date}, {trade_number}, {price} ) | Trade Type: {trade_type} | Volume: {vol} | Qtd: {qtd} | Buy agent: {agent_index[str(buy_agent)]} | Sell agent: {agent_index[str(sell_agent)]} |')
+        # print(f'| New Trade Callback | -> | Ticker: {asset_id.ticker} | Trade : ( {date}, {trade_number}, {price} ) | Trade Type: {trade_type} | Volume: {vol} | Qtd: {qtd} | Buy agent: {agent_index[str(buy_agent)]} | Sell agent: {agent_index[str(sell_agent)]} |')
 
         mt_ticker = asset_id.ticker
         mt_date = date
-        mt_trade_number = tradeNumber
+        mt_trade_number = trade_number
         mt_price = price
         mt_trade_type = trade_type
         mt_volume = vol

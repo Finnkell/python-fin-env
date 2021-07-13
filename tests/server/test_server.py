@@ -1,7 +1,9 @@
-from src.server import MetaTraderConnection
+from src.servers.server_mt5 import MetaTraderConnection
 import unittest
 
 server = MetaTraderConnection()
+
+print('##########################################################')
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
@@ -10,6 +12,8 @@ class ServerTest(unittest.TestCase):
         self.ticket = []
 
     def test_buy(self):
+        server.set_symbol_info_tick(symbol='WINQ21')
+        server.set_symbol_info(symbol='WINQ21')
         price = server.get_symbol_ask()
         point = server.get_symbol_point()
 
@@ -107,7 +111,7 @@ class ServerTest(unittest.TestCase):
         self.assertIsNotNone(server.get_order_type(), "Couldn\'t order type")
 
     def test_get_last_order_symbol(self):
-        self.assertIsNotNone(server.get_order_symbol(), "Couldn\'t get order symbol")
+        self.assertIsNotNone(server.get_order_ticket(), "Couldn\'t get order symbol")
 
     def test_get_order_volume(self):
         self.assertIsNotNone(server.get_order_volume(), "Couldn\'t get order volume")
