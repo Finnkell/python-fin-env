@@ -37,7 +37,7 @@ class MetaTraderConnection:
     def get_symbol_ohlc(self):
         return self.symbol_ohlc if self.symbol_ohlc != None else None
 
-    def set_symbol_info_tick(self, symbol):
+    def set_symbol_info_tick(self, symbol='WINQ21'):
         self.verify_symbol(symbol)
         
         symbol_info_tick_dict = mt5.symbol_info_tick(symbol)._asdict()
@@ -356,6 +356,7 @@ class MetaTraderConnection:
         return result
 
     def verify_symbol(self, symbol):
+
         if symbol == None:
             raise ValueError
 
