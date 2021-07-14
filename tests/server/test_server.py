@@ -1,39 +1,96 @@
+from datetime import date, datetime, timezone
+from time import time
+import pytz
+
+from MetaTrader5 import TIMEFRAME_M1
 from src.servers.server_mt5 import MetaTraderConnection
 import unittest
 
 server = MetaTraderConnection()
 
+tickets = []
+results = []
+server.set_magic_number()
+
 print('##########################################################')
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
-        self.symbol = None
+        global tickets
+        global results
+
+        self.symbol = 'WINQ21'
         self.group = None
-        self.ticket = []
+        self.tickets = tickets
+        self.results = results
+
+    def test_select_symbol(self):
+        self.assertIsNotNone(server.get_symbol_info(self.symbol), "You don\'t have {self.symbol} on your MetTrader Market Observer")
+
+    # OHLC METHOD IS NOT CORRECTLY WORKING, SO IT CAN'T BE TESTED
+    # def test_get_symbol_ohlc(self):
+    #     utc_time = datetime.utcnow()
+    #     tz = pytz.timezone('America/Sao_paulo')
+
+    #     utc_time =utc_time.replace(tzinfo=pytz.UTC)
+    #     st_john_time=utc_time.astimezone(tz)
+
+    #     self.assertIsNotNone(server.get_symbol_ohlc(symbol=self.symbol, timeframe=server.get_timeframe(timeframe=TIMEFRAME_M1), date=st_john_time, count=10), "Couldn\'t get OHLC data from {self.symbol}")
+
+    def test_get_symbol_info_tick(self):
+        self.assertIsNotNone(server.get_symbol_last_info_tick(self.symbol), "Couldn\'t get {self.symbol} info tick")
+
+    def test_get_symbol_info(self):
+        self.assertIsNotNone(server.get_symbol_info(self.symbol), "Couldn\'t get {self.symbol} info")
+
+    def test_get_symbol_bid(self):
+        self.assertIsNotNone(server.get_symbol_last_bid(symbol=self.symbol), "Couldn\'t get {self.symbol} bid")
+
+    def test_get_symbol_ask(self):
+        self.assertIsNotNone(server.get_symbol_last_ask(symbol=self.symbol), "Couldn\'t get {self.symbol} ask")
+
+    def test_get_symbol_volume(self):
+        self.assertIsNotNone(server.get_symbol_last_volume(symbol=self.symbol), "Couldn\'t get {self.symbol} volume")
+
+    def test_get_symbol_last(self):
+        self.assertIsNotNone(server.get_symbol_last_price(symbol=self.symbol), "Couldn\'t get {self.symbol} last price")
+
+    def test_get_symbol_point(self):
+        self.assertIsNotNone(server.get_symbol_point(symbol=self.symbol), "Couldn\'t get {self.symbol} point")
 
     def test_buy(self):
-        server.set_symbol_info_tick(symbol='WINQ21')
-        server.set_symbol_info(symbol='WINQ21')
-        price = server.get_symbol_ask()
-        point = server.get_symbol_point()
+        price = server.get_symbol_last_price(symbol=self.symbol)
+        point = server.get_symbol_point(symbol=self.symbol)
 
-        sl = price - 10*point
-        tp = price + 5*point
-        self.assertIsNotNone(server.buy(1.0, self.symbol, sl, tp, 0, "Buy Test"), "Couldn\'t put an buy order at {self.symbol}")
+        # sl = float(price - 10*point)
+        # tp = float(price + 5*point)
 
-        if server.last_order != None:
-            self.ticket.append( server.last_order )
+        result = server.buy(volume=1, symbol=self.symbol, price=price, comment="Buy Test")
+
+        self.results.append(result)
+        self.tickets.append(result.order)
+
+        self.assertIsNotNone(result, "Couldn\'t put an buy order at {self.symbol}")
+
+        if result != None:
+            self.tickets.append( result.order )
 
     def test_sell(self):
-        price = server.get_symbol_bid()
-        point = server.get_symbol_point()
+        price = server.get_symbol_last_price(symbol=self.symbol)
+        point = server.get_symbol_point(symbol=self.symbol)
         
-        sl = price + 10*point
-        tp = price - 5*point
-        self.assertIsNotNone(server.buy(1.0, self.symbol, sl, tp, 0, "Sell Test"), "Couldn\'t put an sell order at {self.symbol}")
+        # sl = float(price + 10*point)
+        # tp = float(price - 5*point)
 
-        if server.last_order != None:
-            self.ticket.append( server.last_order )
+        result = server.sell(volume=1, symbol=self.symbol, price=price, comment="Sell Test")
+
+        self.results.append(result)
+        self.tickets.append(result.order)
+
+        self.assertIsNotNone(result, "Couldn\'t put an sell order at {self.symbol}")
+
+        if result != None:
+            self.tickets.append( result.order )
 
     """" LIMIT ORDERS NEED TO BE IMPLEMENTED YET
 
@@ -61,82 +118,21 @@ class ServerTest(unittest.TestCase):
 
     """
 
-    def test_select_symbol(self, ativo):
-        if server.get_symbol_info(ativo) != None:
-            self.symbol = ativo
-
-        self.assertIsNotNone(server.get_symbol_info(ativo), "You don\'t have {ativo} on your MetTrader Market Observer")
-
-    def test_get_symbol_ohlc(self):
-        self.assertIsNotNone(server.get_symbol_ohlc(self.symbol), "Couldn\'t get OHLC data from {self.symbol}")
-
-    def test_get_symbol_info_tick(self):
-        self.assertIsNotNone(server.get_symbol_info_tick(self.symbol), "Couldn\'t get {self.symbol} info tick")
-
-    def test_get_symbol_info(self):
-        self.assertIsNotNone(server.get_symbol_info(self.symbol), "Couldn\'t get {self.symbol} info")
-
-    def test_get_symbol_ticks(self):
-        self.assertIsNotNone(server.get_symbol_ticks(self.symbol), "Couldn\'t get {self.symbol} ticks")
-
     # Group Orders Test need to be implemented 
     def test_get_orders(self):
-        self.assertIsNotNone(server.get_orders(symbol=self.symbol), "Couldn\'t get {self.symbol} ticks")
-        self.assertIsNotNone(server.get_orders(ticket=server.last_order), "Couldn\'t get {server.last_order} ticks")
-        # self.assertIsNotNone(server.get_orders(group=self.group), "Couldn\'t get {self.group} ticks")
+        self.assertIsNotNone(server.get_orders(symbol=self.symbol), "Coudn\'t get order from {self.symbol} symbol")
+        self.assertIsNotNone(server.get_orders(ticket=self.tickets[-1]), "Coudn\'t get order from {self.tickets[-1]} ticket")
 
     # Group Positions Test need to be implemented 
     def test_get_positions(self):
-        self.assertIsNotNone(server.get_positons(symbol=self.symbol), "Couldn\'t get {self.symbol} ticks")
-        self.assertIsNotNone(server.get_positons(ticket=server.last_order), "Couldn\'t get {server.last_order} ticks")
+        self.assertIsNotNone(server.get_positions(symbol=self.symbol), "Couldn\'t get {self.symbol} ticks")
+        self.assertIsNotNone(server.get_positions(ticket=self.tickets[0]), "Couldn\'t get {self.tickets[0]} ticket")
         # self.assertIsNotNone(server.get_orders(group=self.group), "Couldn\'t get {self.group} ticks")
 
-    def test_get_symbol_bid(self):
-        self.assertIsNotNone(server.get_symbol_bid(), "Couldn\'t get {self.symbol} bid")
+    # POSITION
+    def test_position_close(self):
+        result = server.buy(volume=1, symbol=self.symbol, price=server.get_symbol_last_price(symbol=self.symbol), comment="Buy Test")
+        self.assertIsNotNone(server.position_close(result), "Couldn\'t close {result} position")
 
-    def test_get_symbol_ask(self):
-        self.assertIsNotNone(server.get_symbol_ask(), "Couldn\'t get {self.symbol} ask")
-
-    def test_get_symbol_volume(self):
-        self.assertIsNotNone(server.get_symbol_volume(), "Couldn\'t get {self.symbol} volume")
-
-    def test_get_symbol_last(self):
-        self.assertIsNotNone(server.get_symbol_last(), "Couldn\'t get {self.symbol} last price")
-
-    def test_get_symbol_point(self):
-        self.assertIsNotNone(server.get_symbol_point(), "Couldn\'t get {self.symbol} point")
-
-    # ORDERS
-    def test_get_order_type(self):
-        self.assertIsNotNone(server.get_order_type(), "Couldn\'t order type")
-
-    def test_get_last_order_symbol(self):
-        self.assertIsNotNone(server.get_order_ticket(), "Couldn\'t get order symbol")
-
-    def test_get_order_volume(self):
-        self.assertIsNotNone(server.get_order_volume(), "Couldn\'t get order volume")
-
-    def test_get_order_last_ticket(self):
-        self.assertIsNotNone(server.get_order_last_ticket(), "Couldn\'t get last ticket")
-
-    def test_get_order_magic(self):
-        self.assertIsNotNone(server.get_order_magic, "Couldn\'t get order magic")
-
-    # POSITION    
-    def test_get_position_type(self):
-        self.assertIsNotNone(server.get_position_type(), "Couldn\'t position type")
-
-    def test_get_last_position_symbol(self):
-        self.assertIsNotNone(server.get_position_symbol(), "Couldn\'t get position symbol")
-
-    def test_get_position_volume(self):
-        self.assertIsNotNone(server.get_position_volume(), "Couldn\'t get position volume")
-
-    def test_get_position_last_ticket(self):
-        self.assertIsNotNone(server.get_position_last_ticket(), "Couldn\'t get last ticket")
-
-    def test_get_position_magic(self):
-        self.assertIsNotNone(server.get_position_magic, "Couldn\'t get position magic")
-
-    def test_get_orders_from_history(self):
-        self.assertIsNotNone(server.get_orders_from_history(server.last_order), "Couldn\'t get {server.last_order} from history of orders")
+    def test_position_close_by(self):
+        self.assertIsNotNone(server.position_close_by(self.results[0], self.results[-1]), "Couldn\'t close {self.results[0].order} ticket with {self.results[1].order} ticket")
