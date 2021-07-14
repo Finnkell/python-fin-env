@@ -3,127 +3,142 @@ import MetaTrader5 as mt5
 class MetaTraderConnection:
     
     def __init__(self):
-#%%
         if not mt5.initialize():
             mt5.shutdown()
         else:
             print(f'Connect Sucessfully {mt5.version()}')
-#%%     
-        self.symbol_ohlc = None
-        self.symbol_tick = None
-        self.symbol_info = {}
-        self.symbol_info_tick = {}
-        self.last_order = {}
-        self.position = None
+   
+        self.position = None     
         self.order = None
 
         self.by_request = None
         self.by_result = None
 
-        self.magic_number = None
+        self.magic_number = 0
 
-        self.orders_history = {}
+        self.trade_history = {}
 
-#%%
     def __del__(self):
         version = mt5.version()
         mt5.shutdown()
         print(f'Disconnected from {version}')
-#%% 
-    def set_symbol_ohlc(self, symbol, timeframe, date, count):
-        self.verify_symbol(symbol)
-        self.symbol_ohlc = mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
-    def get_symbol_ohlc(self):
-        return self.symbol_ohlc if self.symbol_ohlc != None else None
-
-    def set_symbol_info_tick(self, symbol='WINQ21'):
-        self.verify_symbol(symbol)
+    # GETTERS
+    def get_timeframe(self, timeframe):
+        try:
+            timeframe = mt5.timeframe
+        except:
+            return None
         
-        symbol_info_tick_dict = mt5.symbol_info_tick(symbol)._asdict()
-        for key in symbol_info_tick_dict.keys():
-            self.symbol_info_tick[key] = symbol_info_tick_dict[key]
+        return timeframe
 
-    def get_symbol_info_tick(self, ticker):
-        self.set_symbol_info_tick(symbol=ticker)
-
-    def set_symbol_info(self, symbol):
+    """
+        NEED TO FIND, WHAT KINDA OF DATETIME NEED TO BE PASSSED TO 'DATE' PARAMETER
+    """
+    def get_symbol_ohlc(self, symbol, timeframe, date, count):
         self.verify_symbol(symbol)
 
-        symbol_info_dict = mt5.symbol_info(symbol)._asdict()
-
-        for key in symbol_info_dict.keys():
-            self.symbol_info[key] = symbol_info_dict[key]
-
-    def set_symbol_ticks(self, symbol, date, count):
-        self.symbol_ticks = mt5.copy_ticks_from(symbol, date, count, mt5.COPY_TICKS_ALL)
-
-    def get_symbol_ticks(self):
-        return self.symbol_ticks[0][1] if self.symbol_ticks[0][1] != None else None
+        print(f'Copy Rates: {mt5.copy_rates_from_pos(symbol, timeframe, date, count)}')
+        return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
     def get_orders(self, symbol=None, ticket=None, group=None):
         if symbol != None:
-            self.order = mt5.orders_get(symbol=symbol)
+            return mt5.orders_get(symbol=symbol)
         elif ticket != None:
-            self.order = mt5.orders_get(ticket=ticket)
+            return mt5.orders_get(ticket=ticket)
         elif group != None:
-            self.order = mt5.orders_get(group=group)
+            return mt5.orders_get(group=group)
         else:
             return None
 
-    def get_positons(self, symbol=None, ticket=None, group=None):
+    def get_orders_total(self):
+        return mt5.orders_total()
+
+    def get_positions(self, symbol=None, ticket=None, group=None):
         if symbol != None:
-            self.position = mt5.positions_get(symbol=symbol)
+            return mt5.positions_get(symbol=symbol)
         elif ticket != None:
-            self.position = mt5.positions_get(ticket=ticket)
+            return mt5.positions_get(ticket=ticket)
         elif group != None:
-            self.position = mt5.positions_get(group=group)
+            return mt5.positions_get(group=group)
         else:
             return None
 
-    def get_symbol_bid(self):
-        return self.symbol_info_tickself['bid']
+    def get_positions_total(self):
+        return mt5.positions_total()
 
-    def get_symbol_ask(self):
-        return self.symbol_info_tick['ask']
+    def get_symbol_last_info_tick(self, symbol='WINQ21'):
+        self.verify_symbol(symbol)
 
-    def get_symbol_volume(self):
-        return self.symbol_info_tick['volume']
+        return mt5.symbol_info_tick(symbol)
 
-    def get_symbol_last(self):
-        return self.symbol_info_tick['last']
+    def get_symbol_last_bid(self, symbol=None):
+        self.verify_symbol(symbol)
 
-    def get_symbol_point(self):
-        return self.symbol_info['point']
+        return mt5.symbol_info_tick(symbol).bid
 
-    def get_order_ticket(self):
-        return self.last_order.ticket
-    
-    def get_order_volume(self):
-        return self.last_order.volume
+    def get_symbol_last_ask(self, symbol=None):
+        self.verify_symbol(symbol)
 
-    def get_order_ticket(self):
-        return self.last_order.order
+        return mt5.symbol_info_tick(symbol).ask
 
-    def get_position_type(self):
-        return self.position.type
+    def get_symbol_last_volume(self, symbol=None):
+        self.verify_symbol(symbol)
 
-    def get_position_symbol(self):
-        return self.position.symbol
+        return mt5.symbol_info_tick(symbol).volume
 
-    def get_position_volume(self):
-        return self.position.volume
+    def get_symbol_last_price(self, symbol=None):
+        self.verify_symbol(symbol)
 
-    def get_position_magic(self):
-        return self.position.magic
+        return mt5.symbol_info_tick(symbol).last
 
-    # Assets - Need to be reallocated
+    def get_symbol_info(self, symbol=None):
+        self.verify_symbol(symbol)
 
-    def get_order_from_history(self, ticket):
-        if not self.orders_history[ticket]:
+        return mt5.symbol_info(symbol)
+
+    def get_symbol_point(self, symbol=None):
+        self.verify_symbol(symbol)
+
+        return mt5.symbol_info(symbol).point
+
+    def get_symbol_last_high(self, symbol=None):
+        self.verify_symbol(symbol)
+
+        return mt5.symbol_info(symbol).lasthigh
+
+    def get_symbol_last_low(self, symbol=None):
+        self.verify_symbol(symbol)
+
+        return mt5.symbol_info(symbol).lastlow
+
+    def get_trade_from_history(self, ticket=None):
+        if ticket == None:
+            return self.trade_history
+        elif not self.trade_history[ticket]:
             print(f'{ticket} not listed on orders history')
-        else:
-            return self.orders_history[ticket]
+            return None
+        
+        return self.trade_history[ticket]
+
+    def get_orders_history(self, datetime_start, datetime_end, symbol=None):
+        if symbol == None:
+            mt5.history_orders_get(datetime_end, datetime_start)
+
+        return mt5.history_orders_get(datetime_end, datetime_start, symbol=symbol)
+
+    def get_deals_history(self, datetime_start, datetime_end, symbol=None):
+        if symbol == None:
+            mt5.history_deals_get(datetime_end, datetime_start)
+            
+        return mt5.history_deals_get(datetime_end, datetime_start, symbol=symbol)
+
+    def get_last_trade(self):
+        if self.by_result == None:
+            print('Don\'t have any trade')
+            return None
+        
+        return self.by_result
 
     def to_string_orders(self):
         print(f'Orders = {self.last_order}')
@@ -131,26 +146,22 @@ class MetaTraderConnection:
     def to_string_positions(self):
         print(f'Positions = {self.position}')
 
-
     def set_magic_number(self, number_magic=1234):
-        self.magic_number = number_magic
-
-        
+        self.magic_number = number_magic   
 
     def get_symbol(self, symbol):
         selected = mt5.symbol_select(symbol)
 
-        if not selected:
-            print(f'Failed to select symbol {symbol}')
-        else:
-            pass
+        if selected == None:
+            return None
     
-    def buy(self, volume, symbol, price, sl, tp, deviation, comment=''):
+    def buy(self, volume, symbol, price, sl=0.0, tp=0.0, deviation=0, comment=''):
+        self.verify_symbol(symbol)
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": symbol,
-            "volume": volume,
+            "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY,
             "price": price,
             "sl": sl,
@@ -163,6 +174,7 @@ class MetaTraderConnection:
         }
 
         if mt5.order_check(request) == None:
+            print('Order check gone wrong')
             return None
 
         result = mt5.order_send(request)
@@ -170,16 +182,17 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
-        self.orders_history[result.order] = (request, result)
+        self.trade_history[result.order] = (request, result)
 
         return result
 
-    def buy_limit(self, volume, symbol, price, sl, tp, deviation, comment=''):
+    def buy_limit(self, volume, symbol, price, sl=0.0, tp=0.0, deviation=0, comment=''):
+        self.verify_symbol(symbol)
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": symbol,
-            "volume": volume,
+            "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY_LIMIT,
             "price": price,
             "sl": sl,
@@ -200,16 +213,17 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
-        self.orders_history[result.order] = (request, result)
+        self.trade_history[result.order] = (request, result)
 
         return result
 
-    def sell(self, volume, symbol, price, sl, tp, deviation, comment=''):
+    def sell(self, volume, symbol, price, sl=0.0, tp=0.0, deviation=0, comment=''):
+        self.verify_symbol(symbol)
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": symbol,
-            "volume": volume,
+            "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL,
             "price": price,
             "sl": sl,
@@ -229,17 +243,18 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
-        self.orders_history[result.order] = (request, result)
+        self.trade_history[result.order] = (request, result)
 
         return result
 
-    def sell_limit(self, volume, symbol, price, sl, tp, comment=''):
+    def sell_limit(self, volume, symbol, price, sl=0.0, tp=0.0, comment='=0'):
+        self.verify_symbol(symbol)
 
         request = {
             "action": mt5.TRADE_ACTION_PENDING,
             "symbol": symbol,
             "magic": self.magic_number,
-            "volume": volume,
+            "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL_LIMIT,
             "stoplimit": 0.0,
             "price": price,
@@ -259,16 +274,17 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
-        self.orders_history[result.order] = (request, result)
+        self.trade_history[result.order] = (request, result)
 
         return result
     
-    def order_modify(self, volume, symbol, price, sl, tp, deviation, comment=''):
+    def order_modify(self, volume, symbol, price, sl=0.0, tp=0.0, deviation=0, comment=''):
+        self.verify_symbol(symbol)
         
         request = {
             "action": mt5.TRADE_ACTION_MODIFY,
             "symbol": symbol,
-            "volume": volume,
+            "volume": float(volume),
             "price": price,
             "sl": sl,
             "tp": tp,
@@ -288,32 +304,29 @@ class MetaTraderConnection:
         self.by_request = request
         self.by_result = result
 
-        self.orders_history[result.order] = (request, result)
+        self.trade_history[result.order] = (request, result)
 
         return result
 
-    def position_close(self, ticket):
-
-        if self.get_positons(ticket) == None:
+    def position_close(self, order_request):
+        if self.get_positions(ticket=order_request.order) == None:
             return None
 
-        volume = self.by_request['volume']
+        volume = float(order_request.volume)
 
-        if self.by_request['type'] == mt5.ORDER_TYPE_SELL:
+        if order_request.request.type == mt5.ORDER_TYPE_SELL:
             m_type = mt5.ORDER_TYPE_BUY
-            m_price = self.get_symbol_ask()
-            m_position_id = ticket
-            symbol = self.by_request['symbol']
-            magic = self.by_request['magic']
+            m_price = self.get_symbol_last_ask(symbol=order_request.request.symbol)
+            m_position_id = order_request.order
+            symbol = order_request.request.symbol
+            magic = order_request.request.magic
 
-        elif self.by_request['type'] == mt5.ORDER_TYPE_BUY:
+        elif order_request.request.type == mt5.ORDER_TYPE_BUY:
             m_type = mt5.ORDER_TYPE_SELL
-            m_price = self.get_symbol_bid()
-            m_position_id = ticket
-            symbol = self.by_request['symbol']
-            magic = self.by_request['magic']
-
-        print(f'Position_id = {m_position_id}')
+            m_price = self.get_symbol_last_bid(symbol=order_request.request.symbol)
+            m_position_id = order_request.order
+            symbol = order_request.request.symbol
+            magic = order_request.request.magic
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -322,41 +335,48 @@ class MetaTraderConnection:
             "type": m_type,
             "price": m_price,
             "position": m_position_id,
-            # "sl": sl,
-            # "tp": tp,
             "magic": magic,
             "deviation": 0,
-            "comment": f"Position {self.by_request['type']} closed by {m_type}",
+            "comment": f"Position {order_request.request.type} closed by {m_type}",
             "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
         }
+
+        result = mt5.order_check(request)
+
+        if result == None:
+            return None
 
         result = mt5.order_send(request)
         
         return result
     
-    def position_close_by(self, ticket_in, ticket_out):
-        if self.get_positons(ticket_in) == None:
+    def position_close_by(self, order_request, order_request_by):
+        if self.get_positions(ticket=order_request.order) == None:
+            print('gone wrong 1')
             return None
-        elif self.get_positons(ticket_in) == None:
+        elif self.get_positions(ticket=order_request_by.order) == None:
+            print('gone wrong 2')
             return None
 
         request = {
             "action": mt5.TRADE_ACTION_CLOSE_BY,
-            "position": ticket_in,
-            "position_by": ticket_out,
-            # "sl": sl,
-            # "tp": tp,
-            "magic": self.magic_number,
-            "comment": f"Position {ticket_in} closed by {ticket_out}",
+            "position": order_request.order,
+            "position_by": order_request_by.order,
+            "magic": order_request.request.magic
         }
+
+        result = mt5.order_check(request)
+
+        if result == None:
+            print('gone wrong')
+            return None
 
         result = mt5.order_send(request)
         
         return result
 
     def verify_symbol(self, symbol):
-
         if symbol == None:
             raise ValueError
 
