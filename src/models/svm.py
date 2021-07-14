@@ -163,12 +163,12 @@ class SVCModel:
     def example_model_rcv1(self, validation_size=0.2):
         X, y = datasets.fetch_rcv1(return_X_y=True)
 
-        train_size = int(len(X) * (1 - validation_size))
+        train_size = int(X.shape[0] * (1 - validation_size))
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
+        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
 
-        regression = make_pipeline(StandardScaler(), SVC())
+        regression = make_pipeline(StandardScaler(with_mean=False), SVC())
 
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
@@ -206,12 +206,12 @@ class NuSVCModel:
     def example_model_rcv1(self, validation_size=0.2):
         X, y = datasets.fetch_rcv1(return_X_y=True)
 
-        train_size = int(len(X) * (1 - validation_size))
+        train_size = int(X.shape[0] * (1 - validation_size))
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
+        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
 
-        regression = make_pipeline(StandardScaler(), NuSVC())
+        regression = make_pipeline(StandardScaler(with_mean=False), NuSVC())
 
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
@@ -247,14 +247,14 @@ class LinearSVCModel:
 
 
     def example_model_rcv1(self, validation_size=0.2):
-        X, y = datasets.fetch_rcv1(return_X_y=True)
+        X, y = datasets.fetch_rcv1(return_X_y=True).todense()
 
-        train_size = int(len(X) * (1 - validation_size))
+        train_size = int(X.shape[0] * (1 - validation_size))
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
+        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
 
-        regression = make_pipeline(StandardScaler(), LinearSVC())
+        regression = make_pipeline(StandardScaler(with_mean=False), LinearSVC())
 
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
