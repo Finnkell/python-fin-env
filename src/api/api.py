@@ -33,13 +33,13 @@ def predict_svm():
 
         return response
 
-    label = MODEL_LABELS[label_index[0]]
+    label = label_index[0]
 
-    return jsonify(status='complete', label=label)
+    return jsonify(status='complete', label=f"{'BUY' if label == 1 else 'SELL' if label == 0 else label}")
 
 @app.route('/predict_decision_tree')
 def predict_decision_tree():
     pass
 
 def server_run(debug=True, host='127.0.0.1', port=5000):
-    app.run(debug=debug, host=host, port=port)
+    app.run(debug=debug, host=host, port=port, threaded=True)

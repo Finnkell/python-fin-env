@@ -24,9 +24,9 @@ class MetaTraderConnection:
         print(f'Disconnected from {version}')
 
     # GETTERS
-    def get_timeframe(self, timeframe):
+    def get_timeframe(self, timeframe='M1'):
         try:
-            timeframe = mt5.timeframe
+             timeframe = mt5.TIMEFRAME_M1 if timeframe == 'M1' else mt5.TIMEFRAME_D1 
         except:
             return None
         
@@ -37,8 +37,6 @@ class MetaTraderConnection:
     """
     def get_symbol_ohlc(self, symbol, timeframe, date, count):
         self.verify_symbol(symbol)
-
-        print(f'Copy Rates: {mt5.copy_rates_from_pos(symbol, timeframe, date, count)}')
         return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
     def get_orders(self, symbol=None, ticket=None, group=None):
@@ -164,8 +162,8 @@ class MetaTraderConnection:
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price - sl*self.get_symbol_point(symbol=symbol),
+            "tp": price + tp*self.get_symbol_point(symbol=symbol),
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
@@ -226,8 +224,8 @@ class MetaTraderConnection:
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price + sl*self.get_symbol_point(symbol=symbol),
+            "tp": price - tp*self.get_symbol_point(symbol=symbol),
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
