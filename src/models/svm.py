@@ -3,12 +3,13 @@ from sklearn import datasets
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import r2_score, mean_squared_log_error, accuracy_score
+import joblib
 
 
 ### Regression Models
 class SVRModel:
     def __init__(self):
-        pass
+        self.model = None
 
     def __del__(self):
         pass
@@ -23,6 +24,7 @@ class SVRModel:
 
         regression = make_pipeline(StandardScaler(), SVR())
 
+        self.model = regression
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
 
@@ -47,6 +49,11 @@ class SVRModel:
 
     def model_summary(self):
         pass
+
+    def save_model(self):
+        model_filename = 'src/api/models/SVR.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)
 
 
 class NuSVRModel:
@@ -247,20 +254,20 @@ class LinearSVCModel:
 
 
     def example_model_rcv1(self, validation_size=0.2):
-        X, y = datasets.fetch_rcv1(return_X_y=True).todense()
+        # X, y = datasets.fetch_rcv1(return_X_y=True).todense()
 
-        train_size = int(X.shape[0] * (1 - validation_size))
+        # train_size = int(X.shape[0] * (1 - validation_size))
 
-        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
-        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
+        # X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
+        # y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
 
-        regression = make_pipeline(StandardScaler(with_mean=False), LinearSVC())
+        # regression = make_pipeline(StandardScaler(with_mean=False), LinearSVC())
 
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
+        # regression.fit(X_train, y_train)
+        # predicted = regression.predict(X_test)
 
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
-
+        # print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
+        pass
 
     def model_summary(self):
         pass

@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 import joblib
 
-MODEL_SVM = joblib.load('models/svm.pkl')
-MODEL_DECISION_TREE = joblib.load('models/decision_tree.pkl')
+app = Flask(__name__)
+        
+MODEL_SVM = joblib.load('src/api/models/SVR.pkl')
 
 MODEL_LABELS = ['BUY', 'SELL', 'HOLD']
 
@@ -14,7 +15,7 @@ def app_root():
 
 
 @app.route('/predict_svm')
-def predict():
+def predict_svm():
     open_price = request.args.get('open_price')
     high_price = request.args.get('high_price')
     low_price = request.args.get('low_price')
@@ -37,5 +38,8 @@ def predict():
     return jsonify(status='complete', label=label)
 
 @app.route('/predict_decision_tree')
-def predict():
+def predict_decision_tree():
     pass
+
+def server_run(debug=True, host='127.0.0.1', port=5000):
+    app.run(debug=debug, host=host, port=port)
