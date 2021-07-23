@@ -19,7 +19,7 @@ class SVRModel:
 
     def example_model_ohlc_win(self, validation_size=0.2):
         dataframe = pd.read_csv('src/database/ohlc/WIN$N_M15.csv', sep=',')
-
+        
         dataframe = dataframe.drop(['Ticks', 'Volume', 'Spread', 'Date', 'Time'], axis=1)
 
         X = dataframe

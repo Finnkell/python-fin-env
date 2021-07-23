@@ -28,10 +28,10 @@ while True:
     print(label)
 
     if server.get_positions(symbol=ATIVO) == () and label == 'SELL':
-        order_request = server.sell(volume=100.0, symbol=ATIVO, price=server.get_symbol_last_bid(symbol=ATIVO), tp=3, sl=2)
+        order_request = server.sell(volume=1.0, symbol=ATIVO, price=server.get_symbol_last_bid(symbol=ATIVO), tp=50, sl=100)
  
     if server.get_positions(symbol=ATIVO) == () and label == 'BUY':
-        order_request = server.buy(volume=100.0, symbol=ATIVO, price=server.get_symbol_last_bid(symbol=ATIVO), tp=3, sl=2)
+        order_request = server.buy(volume=1.0, symbol=ATIVO, price=server.get_symbol_last_bid(symbol=ATIVO), tp=50, sl=100)
 
 
     sleep(0.5)
