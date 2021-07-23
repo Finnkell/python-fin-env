@@ -1,5 +1,31 @@
 import MetaTrader5 as mt5
 
+timeframes = {
+    'TIMEFRAME_M1': mt5.TIMEFRAME_M1,
+    'TIMEFRAME_M2': mt5.TIMEFRAME_M2,
+    'TIMEFRAME_M3': mt5.TIMEFRAME_M3,
+    'TIMEFRAME_M4': mt5.TIMEFRAME_M4,
+    'TIMEFRAME_M5': mt5.TIMEFRAME_M5,
+    'TIMEFRAME_M6': mt5.TIMEFRAME_M6,
+    'TIMEFRAME_M10': mt5.TIMEFRAME_M10,
+    'TIMEFRAME_M12': mt5.TIMEFRAME_M12,
+    'TIMEFRAME_M12': mt5.TIMEFRAME_M12,
+    'TIMEFRAME_M20': mt5.TIMEFRAME_M20,
+    'TIMEFRAME_M30': mt5.TIMEFRAME_M30,
+    'TIMEFRAME_H1': mt5.TIMEFRAME_H1,
+    'TIMEFRAME_H2': mt5.TIMEFRAME_H2,
+    'TIMEFRAME_H3': mt5.TIMEFRAME_H3,
+    'TIMEFRAME_H4': mt5.TIMEFRAME_H4,
+    'TIMEFRAME_H6': mt5.TIMEFRAME_H6,
+    'TIMEFRAME_H8': mt5.TIMEFRAME_H8,
+    'TIMEFRAME_H12': mt5.TIMEFRAME_H12,
+    'TIMEFRAME_D1': mt5.TIMEFRAME_D1,
+    'TIMEFRAME_W1': mt5.TIMEFRAME_W1,
+    'TIMEFRAME_MN1': mt5.TIMEFRAME_MN1
+}
+
+
+
 class MetaTraderConnection:
     
     def __init__(self):
@@ -24,19 +50,13 @@ class MetaTraderConnection:
         print(f'Disconnected from {version}')
 
     # GETTERS
-    def get_timeframe(self, timeframe='M1'):
-        try:
-             timeframe = mt5.TIMEFRAME_M1 if timeframe == 'M1' else mt5.TIMEFRAME_D1 
-        except:
-            return None
-        
-        return timeframe
+    def get_timeframe(self, timeframe):
+        return timeframes[timeframe] if timeframes[timeframe] else None
 
-    """
-        NEED TO FIND, WHAT KINDA OF DATETIME NEED TO BE PASSSED TO 'DATE' PARAMETER
-    """
-    def get_symbol_ohlc(self, symbol, timeframe, date, count):
+
+    def get_symbol_ohlc(self, symbol, timeframe, date=0, count=1):
         self.verify_symbol(symbol)
+
         return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
     def get_orders(self, symbol=None, ticket=None, group=None):
@@ -52,7 +72,7 @@ class MetaTraderConnection:
     def get_orders_total(self):
         return mt5.orders_total()
 
-    def get_positions(self, symbol=None, ticket=None, group=None):
+    def get_positions(self, symbol='WINQ21', ticket=None, group=None):
         if symbol != None:
             return mt5.positions_get(symbol=symbol)
         elif ticket != None:

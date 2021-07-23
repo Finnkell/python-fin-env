@@ -2,7 +2,6 @@ from datetime import date, datetime, timezone
 from time import time
 import pytz
 
-from MetaTrader5 import TIMEFRAME_M1
 from src.servers.server_mt5 import MetaTraderConnection
 import unittest
 
@@ -27,15 +26,8 @@ class ServerTest(unittest.TestCase):
     def test_select_symbol(self):
         self.assertIsNotNone(server.get_symbol_info(self.symbol), "You don\'t have {self.symbol} on your MetTrader Market Observer")
 
-    # OHLC METHOD IS NOT CORRECTLY WORKING, SO IT CAN'T BE TESTED
-    # def test_get_symbol_ohlc(self):
-    #     utc_time = datetime.utcnow()
-    #     tz = pytz.timezone('America/Sao_paulo')
-
-    #     utc_time =utc_time.replace(tzinfo=pytz.UTC)
-    #     st_john_time=utc_time.astimezone(tz)
-
-    #     self.assertIsNotNone(server.get_symbol_ohlc(symbol=self.symbol, timeframe=server.get_timeframe(timeframe=TIMEFRAME_M1), date=st_john_time, count=10), "Couldn\'t get OHLC data from {self.symbol}")
+    def test_get_symbol_ohlc(self):
+        self.assertIsNotNone(server.get_symbol_ohlc(symbol=self.symbol, timeframe=server.get_timeframe(timeframe='TIMEFRAME_M1'), count=10), "Couldn\'t get OHLC data from {self.symbol}")
 
     def test_get_symbol_info_tick(self):
         self.assertIsNotNone(server.get_symbol_last_info_tick(self.symbol), "Couldn\'t get {self.symbol} info tick")
@@ -120,8 +112,10 @@ class ServerTest(unittest.TestCase):
 
     # Group Orders Test need to be implemented 
     def test_get_orders(self):
-        self.assertIsNotNone(server.get_orders(symbol=self.symbol), "Coudn\'t get order from {self.symbol} symbol")
-        self.assertIsNotNone(server.get_orders(ticket=self.tickets[-1]), "Coudn\'t get order from {self.tickets[-1]} ticket")
+        result = server.get_orders(symbol=self.symbol)
+
+        self.assertIsNotNone(result, "Coudn\'t get order from {self.symbol} symbol")
+        self.assertIsNotNone(server.get_orders(ticket=result[-1].ticket), "Coudn\'t get order from {self.tickets[-1]} ticket")
 
     # Group Positions Test need to be implemented 
     def test_get_positions(self):
