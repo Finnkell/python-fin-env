@@ -53,6 +53,7 @@ class MetaTraderConnection:
     def get_timeframe(self, timeframe):
         return timeframes[timeframe] if timeframes[timeframe] else None
 
+
     def get_symbol_ohlc(self, symbol, timeframe, date=0, count=1):
         self.verify_symbol(symbol)
 
@@ -181,8 +182,8 @@ class MetaTraderConnection:
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price - sl*self.get_symbol_point(symbol=symbol),
+            "tp": price + tp*self.get_symbol_point(symbol=symbol),
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
@@ -243,8 +244,8 @@ class MetaTraderConnection:
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price + sl*self.get_symbol_point(symbol=symbol),
+            "tp": price - tp*self.get_symbol_point(symbol=symbol),
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
