@@ -41,10 +41,10 @@ class Backtest:
                 pos_aberta = True
 
                 if self.flag == 'TICK':
-                    df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume = self.__ohlc_signal(df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume)
+                    df, rows_counter, pos_aberta, data_saida, variacao, volume = self.__ohlc_signal(df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume)
 
                 if self.flag == 'OHLC':
-                    df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume = self.__tick_signal(df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume)
+                    df, rows_counter, pos_aberta, data_saida, variacao, volume = self.__tick_signal(df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume)
             else:
                 rows_counter = rows_counter + 1
 
@@ -91,7 +91,7 @@ class Backtest:
     def run_backtest(self, dataframe):
         pass
 
-    def __tick_signal(self, df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume):
+    def __tick_signal(self, df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume):
         if df.loc[rows_counter, 'Signal_Type'] == 'BUY' or pos_aberta == True:
             if df.loc[rows_counter, 'Open'] >= df.loc[rows_counter, 'Tp'] or df.loc[rows_counter, 'High'] >= df.loc[rows_counter, 'Tp'] or df.loc[rows_counter, 'Low'] >= df.loc[rows_counter, 'Tp'] or df.loc[rows_counter, 'Close'] >= df.loc[rows_counter, 'Tp']:
                 data_saida.append(df.loc[rows_counter, 'Date'] + ' ' + df.loc[rows_counter, 'Time'])
@@ -122,9 +122,9 @@ class Backtest:
 
             rows_counter = rows_counter + 1
 
-        return rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume
+        return rows_counter, pos_aberta, data_saida, variacao, volume
     
-    def __ohlc_signal(self, df, rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume):
+    def __ohlc_signal(self, df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume):
         if df.loc[rows_counter, 'Signal_Type'] == 'BUY' or pos_aberta == True:
             if df.loc[rows_counter, 'Last'] >= df.loc[rows_counter, 'Tp']:
                 data_saida.append(df.loc[rows_counter, 'Date'] + ' ' + df.loc[rows_counter, 'Time'])
@@ -155,4 +155,4 @@ class Backtest:
                 
             rows_counter = rows_counter + 1
 
-        return rows_counter, preco_entrada, preco_saida, pos_aberta, data_saida, variacao, volume
+        return rows_counter, pos_aberta, data_saida, variacao, volume
