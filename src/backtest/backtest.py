@@ -192,8 +192,9 @@ class Backtest:
                 pos_aberta = False
 
             rows_counter = rows_counter + 1
-
+            
         return rows_counter, pos_aberta, data_saida, variacao
+    
     
     def __tick_signal(self, df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume):
         if df.loc[rows_counter, 'Signal_Type'] == 'BUY' or pos_aberta == True:
