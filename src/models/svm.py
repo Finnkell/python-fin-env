@@ -17,36 +17,6 @@ class SVRModel:
     def __del__(self):
         pass
 
-    def example_model_ohlc_win(self, validation_size=0.2):
-        dataframe = pd.read_csv('src/database/ohlc/WIN$N_M15.csv', sep=',')
-        
-        dataframe = dataframe.drop(['Ticks', 'Volume', 'Spread', 'Date', 'Time'], axis=1)
-
-        X = dataframe
-
-        value = dataframe['Close'][dataframe.index[-1]]
-        temp = pd.DataFrame(X['Close'].shift(-1).fillna(value))
-
-        y = pd.DataFrame()
-
-        y['Diff'] = dataframe['Open']/temp['Close']
-        y['Signal'] = np.where(y['Diff'] > 1, 1, 0)
-        y = y.drop(['Diff'], axis=1)
-
-        train_size = int(len(X) * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(with_mean=True, with_std=True), SVC(C=100, tol=10e-6))
-
-        self.model = regression
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} WIN$N D1 Dataset')
-
-
     def example_model_boston(self, validation_size=0.2):
         X, y = datasets.load_boston(return_X_y=True)
 
@@ -131,6 +101,11 @@ class NuSVRModel:
     def model_summary(self):
         pass
 
+    def save_model(self):
+        model_filename = 'src/api/models/NuSVR.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)
+
 
 class LinearSVRModel:
     def __init__(self):
@@ -174,6 +149,10 @@ class LinearSVRModel:
     def model_summary(self):
         pass
 
+    def save_model(self):
+        model_filename = 'src/api/models/LinearSVR.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)
 
 ### Classification Models
 
@@ -185,8 +164,10 @@ class SVCModel:
         pass
 
     def example_model_ohlc_win(self, validation_size=0.2):
-        dataframe = pd.read_csv('src/database/ohlc/PETR4_M1.csv', sep=',')
+        database = 'WIN$N_M15'
 
+        dataframe = pd.read_csv(f'src/database/ohlc/{database}.csv', sep=',')
+        
         dataframe = dataframe.drop(['Ticks', 'Volume', 'Spread', 'Date', 'Time'], axis=1)
 
         X = dataframe
@@ -196,20 +177,23 @@ class SVCModel:
 
         y = pd.DataFrame()
 
-        y['Signal'] = np.where(dataframe['Close'] < temp['Close'], 1, 0)
+        y['Diff'] = dataframe['Open']/temp['Close']
+        y['Signal'] = np.where(y['Diff'] > 1, 1, 0)
+        y = y.drop(['Diff'], axis=1)
 
         train_size = int(len(X) * (1 - validation_size))
 
         X_train, X_test = X[:train_size], X[train_size:len(X)]
         y_train, y_test = y[:train_size], y[train_size:len(y)]
 
-        regression = make_pipeline(MinMaxScaler(), SVC())
+        regression = make_pipeline(StandardScaler(with_mean=True, with_std=True), SVC(C=100, tol=10e-6))
 
         self.model = regression
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
 
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} WIN$N D1 Dataset')
+        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} {database} dataset')
+
 
     def example_model_breast_cancer(self, validation_size=0.2):
         X, y = datasets.load_breast_cancer(return_X_y=True)
@@ -245,6 +229,11 @@ class SVCModel:
 
     def model_summary(self):
         pass
+
+    def save_model(self):
+        model_filename = 'src/api/models/SVC.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)
 
 
 class NuSVCModel:
@@ -289,6 +278,11 @@ class NuSVCModel:
     def model_summary(self):
         pass
 
+    def save_model(self):
+        model_filename = 'src/api/models/NuSVC.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)
+
 
 class LinearSVCModel:
     def __init__(self):
@@ -331,3 +325,8 @@ class LinearSVCModel:
 
     def model_summary(self):
         pass
+
+    def save_model(self):
+        model_filename = 'src/api/models/linearSVC.pkl'
+        print(f'Saving model to {model_filename}...')
+        joblib.dump(self.model, model_filename)

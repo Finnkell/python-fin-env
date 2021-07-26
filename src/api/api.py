@@ -14,8 +14,8 @@ def app_root():
     return jsonify(status='complete')
 
 
-@app.route('/predict_svm')
-def predict_svm():
+@app.route('/svc_predict')
+def svc_predict():
     open_price = request.args.get('open_price')
     high_price = request.args.get('high_price')
     low_price = request.args.get('low_price')
@@ -37,14 +37,38 @@ def predict_svm():
 
     return jsonify(status='complete', label=f"{'BUY' if label == 1 else 'SELL' if label == 0 else label}")
 
-@app.route('/svm_stats')
-def get_svm_stats():
-    pass
+# TODO: Create a route to get svc stats
+@app.route('/svc_stats')
+def get_svc_stats():
+    return jsonify(status='complete')
 
-@app.route('/predict_decision_tree')
+@app.route('/linear_svc_predict')
+def linear_svc_predict():
+    return jsonify(status='complete')
+
+@app.route('/nu_svc_predict')
+def nu_svc_predict():
+    return jsonify(status='complete')
+
+@app.route('/svr_predict')
+def svr_predict():
+    return jsonify(status='complete')
+
+@app.route('/linear_svr_predict')
+def linear_svr_predict():
+    return jsonify(status='complete')
+
+@app.route('/nu_svr_predict')
+def nu_svr_predict():
+    return jsonify(status='complete')
+
+@app.route('/decision_tree_predict')
 def predict_decision_tree():
-    pass
+    return jsonify(status='complete')
 
+@app.route('/decision_tree_stats')
+def get_decision_tree_stats():
+    return jsonify(status='complete')
 
 def server_run(debug=True, host='127.0.0.1', port=5000):
     app.run(debug=debug, host=host, port=port, threaded=True)
