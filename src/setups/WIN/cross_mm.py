@@ -1,5 +1,5 @@
 class CrossMMSetupWIN():
-    def __init__(self, period_ma_short= 8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
+    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
         self.dataframe = None
 
         self.params = {
@@ -22,11 +22,8 @@ class CrossMMSetupWIN():
     def example(self):
         pass
 
-    def create_strategy(self, dataframe, tp=200, sl=100, volume=1.0):
+    def create_strategy(self, dataframe, tp=200, sl=200, volume=1.0):
         self.dataframe = dataframe
-
-        dataframe['TP'] = dataframe['Close'] + tp
-        dataframe['SL'] = dataframe['Close'] + sl
 
         if self.params['short_ma']['type'] == 'SMA':
             dataframe['MMS'] = dataframe[self.params['short_ma']['applied_price']].rolling(window=self.params['short_ma']['period']).mean().fillna(0)
@@ -43,18 +40,36 @@ class CrossMMSetupWIN():
 
         # Strategy Logic
         dataframe['Signal'] = dataframe['MML'] < dataframe['MMS']
+        dataframe['TP'] = dataframe['Close'] + tp
+        dataframe['SL'] = dataframe['Close'] - sl
 
         signal = []
+        signal.append(None)
 
-        for i in range(len(dataframe['Signal'])):
+        for i in range(1, len(dataframe['Signal'])):
             if dataframe['MML'][i] == 0 or dataframe['MMS'][i] == 0:
                 signal.append(None)
+            elif dataframe['MML'][i - 1] > dataframe['MMS'][i - 1] and dataframe['MML'][i] < dataframe['MMS'][i]:
+                signal.append(True)
+            elif dataframe['MML'][i - 1] < dataframe['MMS'][i - 1] and dataframe['MML'][i] > dataframe['MMS'][i]:
+                signal.append(False)
             else:
-                signal.append(dataframe['Signal'][i])
+                signal.append(None)
 
         dataframe['Signal'] = signal
 
         dataframe['Signal_Type'] = dataframe['Signal'].replace({False: 'SELL', True: 'BUY', None: 'HOLD'})
+
+        for i in range(len(dataframe['Signal_Type'])):
+            if dataframe['Signal_Type'][i] == 'BUY':
+                dataframe['TP'][i] = dataframe['Open'][i] + tp
+                dataframe['SL'][i] = dataframe['Open'][i] - sl
+            elif dataframe['Signal_Type'][i] == 'SELL':
+                dataframe['TP'][i] = dataframe['Open'][i] - tp
+                dataframe['SL'][i] = dataframe['Open'][i] + sl
+            else:
+                dataframe['TP'][i] = 0
+                dataframe['SL'][i] = 0
 
         return dataframe
 

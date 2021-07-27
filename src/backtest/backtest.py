@@ -69,7 +69,7 @@ class Backtest:
                     if pos_aberta == False:
                         break
 
-                    rows_counter = rows_counter + 1    
+                    rows_counter = rows_counter + 1
             else:
                 rows_counter = rows_counter + 1
 
@@ -157,13 +157,43 @@ class Backtest:
         self.resultado['Data Entrada'] = pd.to_datetime(self.resultado['Entry'])
         self.resultado.plot(x='Entry', y='Variation', kind='scatter', ax=ax_scatter)
 
-        plt.show()
+        plt.savefig('result1.pdf')
+
+        self.resultado['Backtest'] = self.resultado['Variation'].cumsum()
+
+        ax_saldo = self.resultado.plot(x='Entry', y='Backtest', figsize=(20, 10), label='Saldo')
+
+        ax_saldo.axhline(self.resultado['Backtest'].max(), color='#6DC75E', linestyle='--', label='Máxima')
+        ax_saldo.axhline(self.resultado['Backtest'].min(), color='#6DC75E', linestyle='--', label='Mínima')
+        plt.legend()
+
+        self.resultado['Backtest Max'] = self.resultado['Backtest'].cummax()
+
+        self.resultado['Drawdowns'] = self.resultado['Backtest Max'] - self.resultado['Backtest']
+
+        ax_line = self.resultado.plot(x='Entry', y='Backtest Max', label='Max Acumulado', color='orange', figsize=(20, 10))
+        self.resultado.plot(x='Entry', y='Backtest', label='Saldo', color='blue', ax=ax_line)
+
+        self.resultado.plot(x='Entry', y='Drawdowns', label='Drawdows', color='green', ax=ax_line, linewidth=.8)
+
+        max_dd = self.resultado['Drawdowns'].max()
+        print(f'Máximo Drawdown: R$ {round(max_dd, 2)}')
+
+        retorno_perc = 100*self.recurrency/max_dd
+        print(f'Retorno percentual: {round(retorno_perc, 2)}%')
+
+        plt.savefig('result2.pdf')
+
+        import subprocess
+
+        subprocess.run('explorer result1.pdf')
+        subprocess.run('explorer result2.pdf')
 
     def run_backtest(self, dataframe):
         pass
 
     def __ohlc_signal(self, df, rows_counter, preco_entrada, pos_aberta, data_saida, variacao, volume):
-        if df.loc[rows_counter, 'Signal_Type'] == 'BUY' or pos_aberta == True:
+        if df.loc[rows_counter, 'Signal_Type'] == 'BUY' and pos_aberta == True:
             if df.loc[rows_counter, 'Open'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'High'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'Low'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'Close'] >= df.loc[rows_counter, 'TP']:
                 data_saida.append(df.loc[rows_counter, 'Date'] + ' ' + df.loc[rows_counter, 'Time'])
                 preco_saida = df.loc[rows_counter, 'Close']
@@ -178,7 +208,7 @@ class Backtest:
 
             rows_counter = rows_counter + 1
 
-        elif df.loc[rows_counter, 'Signal_Type'] == 'SELL' or pos_aberta == True:
+        elif df.loc[rows_counter, 'Signal_Type'] == 'SELL' and pos_aberta == True:
             if df.loc[rows_counter, 'Open'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'High'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'Low'] >= df.loc[rows_counter, 'TP'] or df.loc[rows_counter, 'Close'] >= df.loc[rows_counter, 'TP']:
                 data_saida.append(df.loc[rows_counter, 'Date'] + ' ' + df.loc[rows_counter, 'Time'])
                 preco_saida = df.loc[rows_counter, 'Close']
@@ -191,6 +221,8 @@ class Backtest:
                 variacao.append(volume*(preco_entrada - preco_saida))
                 pos_aberta = False
 
+            rows_counter = rows_counter + 1
+        else:
             rows_counter = rows_counter + 1
             
         return rows_counter, pos_aberta, data_saida, variacao
