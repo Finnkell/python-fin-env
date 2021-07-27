@@ -2,7 +2,7 @@ from sklearn.svm import SVR, NuSVR, LinearSVR, SVC, NuSVC, LinearSVC
 from sklearn import datasets
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import r2_score, mean_squared_log_error, accuracy_score
+from sklearn.metrics import *
 import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,6 +13,12 @@ import numpy as np
 class SVRModel:
     def __init__(self):
         self.model = None
+
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+        self.y_pred = None
 
     def __del__(self):
         pass
@@ -25,11 +31,15 @@ class SVRModel:
         X_train, X_test = X[:train_size], X[train_size:len(X)]
         y_train, y_test = y[:train_size], y[train_size:len(y)]
 
+        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
+
         regression = make_pipeline(StandardScaler(), SVR())
 
         self.model = regression
         regression.fit(X_train, y_train)
         predicted = regression.predict(X_test)
+
+        self.y_pred = predicted
 
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Boston Dataset')
 
@@ -51,7 +61,9 @@ class SVRModel:
 
 
     def model_summary(self):
-        pass
+        SVR_ACCURACY = accuracy_score(y_pred, y_test)
+        SVR_R2SCORE = r2_score(y_pred, y_test)
+        return 
 
     def save_model(self):
         model_filename = 'src/api/models/SVR.pkl'
@@ -158,10 +170,19 @@ class LinearSVRModel:
 
 class SVCModel:
     def __init__(self):
-        pass
+        self.model = None
+        self.model_sum = None
+
+        self.X_train = None
+        self.X_test = None
+        self.y_train = None
+        self.y_test = None
+        self.y_pred = None
+
 
     def __del__(self):
         pass
+
 
     def example_model_ohlc_win(self, validation_size=0.2):
         database = 'WIN$N_M15'
@@ -186,13 +207,17 @@ class SVCModel:
         X_train, X_test = X[:train_size], X[train_size:len(X)]
         y_train, y_test = y[:train_size], y[train_size:len(y)]
 
+        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
+
         regression = make_pipeline(StandardScaler(with_mean=True, with_std=True), SVC(C=100, tol=10e-6))
 
-        self.model = regression
         regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
+        self.model = regression
 
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} {database} dataset')
+        predicted = regression.predict(X_test)
+        self.y_pred = predicted
+
+        self.model_sum = self.model_summary()
 
 
     def example_model_breast_cancer(self, validation_size=0.2):
@@ -228,12 +253,35 @@ class SVCModel:
 
 
     def model_summary(self):
-        pass
+        SVC_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
+        SVC_BALANCED_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
+        SVC_AVERAGE_PRECISION_SCORE = average_precision_score(y_score=self.y_pred, y_true=self.y_test)
+        SVC_BRIER_SCORE_LOSS = brier_score_loss(y_prob=self.y_pred, y_true=self.y_test)
+        SVC_F1_SCORE = f1_score(y_pred=self.y_pred, y_true=self.y_test)
+        SVC_LOG_LOSS = log_loss(y_pred=self.y_pred, y_true=self.y_test)
+        SVC_PRECISION = precision_score(y_pred=self.y_pred, y_true=self.y_test)
+
+        summary = {
+            'accuracy_score': SVC_ACCURACY_SCORE,
+            'balanced_accuracy_score': SVC_BALANCED_ACCURACY_SCORE,
+            'average_precision_score': SVC_AVERAGE_PRECISION_SCORE,
+            'brier_score_loss': SVC_BRIER_SCORE_LOSS,
+            'f1_score': SVC_F1_SCORE,
+            'log_score': SVC_LOG_LOSS,
+            'precision_score': SVC_PRECISION
+        }
+
+        return summary
 
     def save_model(self):
         model_filename = 'src/api/models/SVC.pkl'
+        model_summary_filename = 'src/api/models/SVC_SUMMARY.pkl'
+        
         print(f'Saving model to {model_filename}...')
+        print(f'Saving model summary to {model_summary_filename}...')
+
         joblib.dump(self.model, model_filename)
+        joblib.dump(self.model_sum, model_summary_filename)
 
 
 class NuSVCModel:
