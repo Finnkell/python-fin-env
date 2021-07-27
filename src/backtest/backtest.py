@@ -86,6 +86,7 @@ class Backtest:
                 variacao.append(volume*(-preco_entrada + preco_saida))
                 data_saida.append(df.loc[rows_counter - 2, 'Date'] + ' ' + df.loc[rows_counter - 2, 'Time'])
 
+
         resultado = pd.DataFrame(data={'Entry': data_entrada, 'Out': data_saida, 'Variation': variacao})
         
         self.create_new_dataframe(resultado)
@@ -208,9 +209,6 @@ class Backtest:
         
         plt.savefig('result2.pdf')
 
-        print(f"---------------------------------------\nBacktest: {self.resultado['Backtest'].tail(20)}\n---------------------------------------")
-        print(f"---------------------------------------\nBacktest Max: {self.resultado['Backtest Max'].tail(20)}\n---------------------------------------")
-        print(f"---------------------------------------\nDrawdawns: {self.resultado['Drawdowns'].tail(20)}\n---------------------------------------")
 
         import subprocess
 
@@ -220,6 +218,7 @@ class Backtest:
     def run_backtest(self, dataframe):
         pass
 
+      
     def __ohlc_signal(self, df, rows_counter, preco_entrada, pos_aberta, variacao, volume, order_type):
         if df.loc[rows_counter, 'Signal_Type'] == 'BUY' or ( pos_aberta == True and order_type == 'BUY'):
             order_type = 'BUY'

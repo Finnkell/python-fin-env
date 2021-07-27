@@ -1,5 +1,5 @@
 class CrossMMSetupWIN():
-    def __init__(self, period_ma_short= 8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
+    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
         self.dataframe = None
 
         self.params = {
@@ -38,6 +38,7 @@ class CrossMMSetupWIN():
             dataframe['MML'] = dataframe[self.params['long_ma']['applied_price']].ewm(min_periods=self.params['long_ma']['period'], span=self.params['long_ma']['period'], adjust=False).mean().fillna(0)
 
         # Strategy Logic
+        
         # dataframe['Signal'] = dataframe['MML'] < dataframe['MMS']
 
         signal = []
@@ -73,12 +74,24 @@ class CrossMMSetupWIN():
                 signal.append(None)
                 price_tp.append(aux_tp)
                 price_sl.append(aux_sl)
+                
 
         dataframe['Signal'] = signal
         dataframe['TP'] = price_tp
         dataframe['SL'] = price_sl
 
         dataframe['Signal_Type'] = dataframe['Signal'].replace({False: 'SELL', True: 'BUY', None: 'HOLD'})
+
+        for i in range(len(dataframe['Signal_Type'])):
+            if dataframe['Signal_Type'][i] == 'BUY':
+                dataframe['TP'][i] = dataframe['Open'][i] + tp
+                dataframe['SL'][i] = dataframe['Open'][i] - sl
+            elif dataframe['Signal_Type'][i] == 'SELL':
+                dataframe['TP'][i] = dataframe['Open'][i] - tp
+                dataframe['SL'][i] = dataframe['Open'][i] + sl
+            else:
+                dataframe['TP'][i] = 0
+                dataframe['SL'][i] = 0
 
         return dataframe
 
