@@ -1,0 +1,19 @@
+{% block body %}
+
+    <style>
+        body {
+            background-color: #000000;
+        }
+
+        #error_text {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            color: #ffffffff;
+            padding: 10 10 10 10;
+        }
+
+    </style>
+
+    <center> <p> <div> <h1 id="error_text"> {{error_message_description}} </h1> </div> </p> </center>
+
+    <center> <p> <img src="{{cat_image.url}}">  </img>  </p> </center>
+{% endblock %}
