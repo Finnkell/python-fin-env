@@ -10,7 +10,7 @@ import numpy as np
 
 
 ### Regression Models
-class SVRModel:
+class SVRModel():
     def __init__(self):
         self.model = None
 
