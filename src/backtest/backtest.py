@@ -17,7 +17,7 @@ class Backtest(Object):
 
         if len(stack) == 0:
             return True
-
+          
         return False
 
     def is_dataframe_empty(self, dataframe: DataFrame) -> bool:
@@ -58,8 +58,8 @@ class Backtest(Object):
                 results['stop_loss'] = False
                 results['position_modify'] = False
                 results['position_close'] = False
-
-        
+                
+                
         return
 
     def send_setup_stack_info(self, dataframe: DataFrame, setup: Setup) ->  None:
@@ -90,7 +90,7 @@ class Backtest(Object):
     def export_backtest_log_report(self, results: dict):
         return
 
-
+      
     def run_backtest(self):
         return
     
