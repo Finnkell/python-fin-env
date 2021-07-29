@@ -1,5 +1,7 @@
-class SetupPreProcessingInfos(Object):
-    def __init__(self) -> None:
+class SetupPreProcessingInfos(object):
+    def __init__(self, setup: 'Setup') -> None:
+        self.setup = None
+
         self.take_profit = 0.0
         self.stop_loss = 0.0
         
@@ -28,7 +30,6 @@ class SetupPreProcessingInfos(Object):
         
         del self.start_date
         del self.end_data
-
 
     def set_take_profit(self, tp: float) -> None:
         if self.param_validation(tp):
@@ -81,7 +82,6 @@ class SetupPreProcessingInfos(Object):
 
     def get_is_position_close(self) -> bool:
         return self.is_position_closed
-
 
 
 

@@ -7,10 +7,12 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import joblib
+from src.models.model import Model
 
 
-class DecisionTreeClassifierModel(object):
+class DecisionTreeClassifierModel(Model):
     def __init__(self):
+        super().__init__()
         self.model = None
         self.model_sum = None
 

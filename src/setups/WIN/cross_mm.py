@@ -1,8 +1,11 @@
-class CrossMMSetupWIN():
-    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
-        self.dataframe = None
+from src.setups.setup import Setup
 
-        self.params = {
+class CrossMMSetupWIN(Setup):
+    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
+        super().__init__()
+        self.__dataframe = None
+
+        self.__params = {
             'short_ma': {
                 'period': period_ma_short, 
                 'type': type_ma_short, 
@@ -17,7 +20,7 @@ class CrossMMSetupWIN():
 
 
     def __del__(self):
-        pass
+        super().__del__()
 
     def example(self):
         pass
@@ -73,9 +76,23 @@ class CrossMMSetupWIN():
 
         return dataframe
 
-
+    @override
     def signal_buy(self):
         pass
-
+    
+    @override
     def signal_sell(self):
         pass
+
+    @override
+    def get_stack_info_from_backtest(self, dt, price, **kwargs):
+        return
+    
+    @override
+    def export_backtest_log_report(self):
+        return
+
+    def override(self):
+        def wrapper(f=None):
+            return 
+        return
