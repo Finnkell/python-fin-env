@@ -40,26 +40,48 @@ class CrossMMSetupWIN(Setup):
         if self.params['long_ma']['type'] == 'EMA':
             dataframe['MML'] = dataframe[self.params['long_ma']['applied_price']].ewm(min_periods=self.params['long_ma']['period'], span=self.params['long_ma']['period'], adjust=False).mean().fillna(0)
 
-
         # Strategy Logic
-        dataframe['Signal'] = dataframe['MML'] < dataframe['MMS']
-        dataframe['TP'] = dataframe['Close'] + tp
-        dataframe['SL'] = dataframe['Close'] - sl
+        
+        # dataframe['Signal'] = dataframe['MML'] < dataframe['MMS']
 
         signal = []
-        signal.append(None)
+        price_tp = []
+        price_sl = []
 
-        for i in range(1, len(dataframe['Signal'])):
-            if dataframe['MML'][i] == 0 or dataframe['MMS'][i] == 0:
-                signal.append(None)
-            elif dataframe['MML'][i - 1] > dataframe['MMS'][i - 1] and dataframe['MML'][i] < dataframe['MMS'][i]:
+        signal.append(None)
+        price_tp.append(None)
+        price_sl.append(None)
+
+        aux_tp = 0
+        aux_sl = 0
+
+        for i in range(1, len(dataframe['Close'])):
+            if dataframe['MML'][i - 1] > dataframe['MMS'][i - 1] and dataframe['MML'][i] < dataframe['MMS'][i]:
                 signal.append(True)
+
+                aux_tp = dataframe['Close'][i] + tp
+                aux_sl = dataframe['Close'][i] - sl
+
+                price_tp.append(aux_tp)
+                price_sl.append(aux_sl)
+
             elif dataframe['MML'][i - 1] < dataframe['MMS'][i - 1] and dataframe['MML'][i] > dataframe['MMS'][i]:
                 signal.append(False)
+
+                aux_tp = dataframe['Close'][i] - tp
+                aux_sl = dataframe['Close'][i] + sl
+
+                price_tp.append(aux_tp)
+                price_sl.append(aux_sl)
             else:
                 signal.append(None)
+                price_tp.append(aux_tp)
+                price_sl.append(aux_sl)
+                
 
         dataframe['Signal'] = signal
+        dataframe['TP'] = price_tp
+        dataframe['SL'] = price_sl
 
         dataframe['Signal_Type'] = dataframe['Signal'].replace({False: 'SELL', True: 'BUY', None: 'HOLD'})
 

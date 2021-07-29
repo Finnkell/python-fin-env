@@ -17,7 +17,7 @@ class Backtest(object):
     def is_stack_empty(self, stack: list) -> bool:
         if len(stack) == 0:
             return True
-
+          
         return False
 
     def is_dataframe_empty(self, dataframe: pd.DataFrame) -> bool:
@@ -58,7 +58,6 @@ class Backtest(object):
 
         return results
 
-        []
 
     def send_setup_stack_info(self, dataframe: pd.DataFrame) ->  None:
         stack = []
