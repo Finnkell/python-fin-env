@@ -5,7 +5,7 @@ class CrossMMSetupWIN(Setup):
         super().__init__()
         self.__dataframe = None
 
-        self.__params = {
+        self.__indicator_params = {
             'short_ma': {
                 'period': period_ma_short, 
                 'type': type_ma_short, 
@@ -18,12 +18,61 @@ class CrossMMSetupWIN(Setup):
             },
         }
 
+        self.__setup_params = {
+            'volume': None,
+            'tp': None,
+            'sl': None,
+            # 'position_modify': None,
+            # 'position_close': None,
+            # 'breakeven': None,
+            # 'trailing_stop': None
+        }
 
     def __del__(self):
         super().__del__()
+        del self.__dataframe
+        del self.__indicator_params
+        del self.__setup_params
+        
 
-    def example(self):
+    def set_take_profit(self, tp: float) -> None:
+        self.__setup_params['tp'] = tp
+
+    def set_stop_loss(self, sl: float) -> None:
+        self.__setup_params['sl'] = sl
+
+    def set_volume(self, volume: float) -> None:
+        self.__setup_params['volume'] = volume
+
+    def set_breakeven(self, qtd: int, **kwargs) -> None:
+        
+        if qtd == 0:
+            self.__setup_params['breakeven'] = None
+            return
+
+        self.__setup_params['breakeven'] = []
+
+        for i in range(qtd):
+            self.__setup_params['breakeven'].append((be, to))
+
+    def set_trailing_stop(self):
         pass
+
+    def set_position_modify(self, value: float):
+        if value == None:
+            self.__setup_params['position_modify'] = None
+            return
+
+        self.__setup_params['position_modify'] = value
+        
+    def set_position_close(self, value: float):
+        if value == None:
+            self.__setup_params['position_close'] = None
+            return
+
+        self.__setup_params['position_close'] = value
+
+
 
     def create_strategy(self, dataframe, tp=200, sl=200, volume=1.0):
         self.dataframe = dataframe
@@ -98,13 +147,22 @@ class CrossMMSetupWIN(Setup):
 
         return dataframe
 
+
     @override
-    def signal_buy(self):
-        pass
+    def get_setup_params(self):
+        return self.__setup_params
+
+    @override
+    def get_indicators_params():
+        return self.__indicators_params
+
+    @override
+    def signal_buy(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+        return True if mml_last < mms_last and mml_previous > mms_previous else False
     
     @override
-    def signal_sell(self):
-        pass
+    def signal_sell(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+        return True if mml_last > mms_last and mml_previous < mms_previous else False
 
     @override
     def get_stack_info_from_backtest(self, dt, price, **kwargs):
