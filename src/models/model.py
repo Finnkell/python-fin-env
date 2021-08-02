@@ -8,29 +8,33 @@ class Model(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def example(self):
+    def get_data(self) -> None:
         pass
 
     @abstractmethod
-    def create_model(self, **kwargs):
+    def example(self) -> None:
         pass
 
     @abstractmethod
-    def fit_model(self, X_train: 'DataFrame', y_train: 'DataFrame'):
+    def create_model(self, **kwargs) -> None:
         pass
 
     @abstractmethod
-    def predict(self, x_test: list or 'DataFrame' or 'np.array'):
+    def fit_model(self, X_train: 'DataFrame', y_train: 'DataFrame') -> None:
         pass
 
     @abstractmethod
-    def evaluate_model(self):
+    def predict(self, x_test: list or 'DataFrame' or 'np.array') -> list:
         pass
 
     @abstractmethod
-    def model_summary(self):
+    def evaluate_model(self) -> None:
         pass
 
     @abstractmethod
-    def save_model(self):
+    def model_summary(self) -> dict:
+        pass
+
+    @abstractmethod
+    def save_model(self) -> None:
         pass

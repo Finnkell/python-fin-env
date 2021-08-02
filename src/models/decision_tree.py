@@ -31,12 +31,10 @@ class DecisionTreeClassifierModel(Model):
         del self.y_test
         del self.y_pred
 
-    def example_indicators_win(self):
+    def create_model(self, **kwargs):
+        self.model = make_pipeline(StandardScaler(), DecisionTreeClassifier())
 
-        database = 'WIN$N_M15'
-
-        dataframe = pd.read_csv(f'src/database/ohlc/{database}.csv', sep=',')
-
+    def get_data(self, dataframe):
         dataframe = dataframe.drop(['Ticks', 'Volume', 'Spread', 'Date', 'Time'], axis=1)
 
         X = dataframe
@@ -58,16 +56,25 @@ class DecisionTreeClassifierModel(Model):
 
         self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
 
-        classifier = make_pipeline(StandardScaler(), DecisionTreeClassifier())
 
-        classifier.fit(X_train, y_train)
-        self.model = classifier
+    def example(self, dataframe):
 
-        predicted = classifier.predict(X_test)
-        self.y_pred = predicted
-
+        self.get_data(dataframe)
+        self.create_model()
+        self.fit_model(self.X_train, self.y_train)
+        self.y_pred = self.predict(self.X_test)
         self.model_sum = self.model_summary()
 
+        print(self.model_sum)
+
+    def fit_model(self, X_train, y_train):
+        return self.model.fit(X_train, y_train)
+
+    def predict(self, X_test):
+        return self.model.predict(X_test)
+    
+    def evaluate_model(self):
+        return
 
     def model_summary(self):
         DECISION_TREE_CLASSIFIER_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
@@ -94,8 +101,6 @@ class DecisionTreeClassifierModel(Model):
         model_filename = 'src/api/models/DecisionTreeClassifier.pkl'
         print(f'Saving model to {model_filename}...')
         joblib.dump(self.model, model_filename)
-
-        return
 
 class DecisionTreeRegressor(object):
     def __init__(self):

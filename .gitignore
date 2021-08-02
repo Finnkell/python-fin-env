@@ -132,6 +132,5 @@ dmypy.json
 .pyre/
 
 # Main files
-main.py
 main.ipynb
 test.py
