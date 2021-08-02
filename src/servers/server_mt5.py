@@ -25,7 +25,7 @@ timeframes = {
 }
 
 
-class MetaTraderConnection(object):
+class MetaTraderConnection():
     
     def __init__(self):
         if not mt5.initialize():
@@ -45,10 +45,10 @@ class MetaTraderConnection(object):
         self.trade_history = {}
 
     def __del__(self):
-        version = mt5.version()
         mt5.shutdown()
-        print(f'Disconnected from {version}')
+        print(f'Disconnected from {self.version}')
 
+        del self.version
         del self.position
         del self.order
         del self.by_request
@@ -57,7 +57,8 @@ class MetaTraderConnection(object):
         del self.trade_history
 
     def __str__(self):
-        return 
+        return f'MetaTrader Connection v. {self.version}'
+
 
     def get_timeframe(self, timeframe: str) -> 'mt5.TIMEFRAME':
         return timeframes[timeframe] if timeframes[timeframe] else None

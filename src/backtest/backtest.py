@@ -1,3 +1,5 @@
+from src.setups.setup_pre_processing_infos import SetupPreProcessingInfos
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,10 +11,8 @@ class Backtest(object):
         self.setup = setup
         self.setup_dataframe = dataframe
 
-
     def __del__(self):
         pass
-
 
     def is_stack_empty(self, stack: list) -> bool:
         if len(stack) == 0:
@@ -27,7 +27,9 @@ class Backtest(object):
         return False
 
     def setup_pre_processing_infos(self, stack_info: tuple) -> dict:
-        setup_pre_processing = SetupPreProcessingInfos(self.__setup)
+        setup_pre_processing_infos = SetupPreProcessingInfos(self.__setup)
+
+        setup_pre_processing_infos.verify_setup_params()
 
         results = {}
 
@@ -37,18 +39,18 @@ class Backtest(object):
             restults['date'] = stack_info[1]
 
             if stack_info[2] == 'BUY':
-                results['take_profit'] = True if stack_info[0] <= setup_infos.get_take_profit() else False
-                results['stop_loss'] = True if stack_info[0] >= setup_infos.get_stop_loss() else False
+                results['take_profit'] = True if stack_info[0] <= setup_pre_processing_infos.get_take_profit() else False
+                results['stop_loss'] = True if stack_info[0] >= setup_pre_processing_infos.get_stop_loss() else False
 
-                results['position_modify'] = True if stack_info[0] >= setup_infos.get_position_modify() else False
-                results['position_close'] = True if stack_info[0] >= setup_infos.get_position_close() else False
+                results['position_modify'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_modify() else False
+                results['position_close'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_close() else False
 
             elif stack_info[2] == 'SELL':
-                results['take_profit'] = True if stack_info[0] <= setup_infos.get_take_profit() else False
-                results['stop_loss'] = True if stack_info[0] >= setup_infos.get_stop_loss() else False
+                results['take_profit'] = True if stack_info[0] <= setup_pre_processing_infos.get_take_profit() else False
+                results['stop_loss'] = True if stack_info[0] >= setup_pre_processing_infos.get_stop_loss() else False
 
-                results['position_modify'] = True if stack_info[0] >= setup_infos.get_position_modify() else False
-                results['position_close'] = True if stack_info[0] >= setup_infos.get_position_close() else False
+                results['position_modify'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_modify() else False
+                results['position_close'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_close() else False
 
             else:
                 results['take_profit'] = False

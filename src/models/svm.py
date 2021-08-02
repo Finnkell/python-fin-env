@@ -1,17 +1,23 @@
+from src.models.model import Model
+
 from sklearn.svm import SVR, NuSVR, LinearSVR, SVC, NuSVC, LinearSVC
 from sklearn import datasets
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import *
+
 import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-### Regression Models
-class SVRModel():
+'''
+>>> Regression Models: SVR, NuSVR, LinearSVR
+'''
+class SVRModel(Model):
     def __init__(self):
+        super().__init__()
         self.model = None
 
         self.X_train = None
@@ -59,6 +65,20 @@ class SVRModel():
 
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
 
     def model_summary(self):
         SVR_ACCURACY = accuracy_score(y_pred, y_test)
@@ -71,8 +91,9 @@ class SVRModel():
         joblib.dump(self.model, model_filename)
 
 
-class NuSVRModel:
+class NuSVRModel(Model):
     def __init__(self):
+        super().__init__()
         pass
 
     def __del__(self):
@@ -109,6 +130,20 @@ class NuSVRModel:
 
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
 
     def model_summary(self):
         pass
@@ -119,8 +154,9 @@ class NuSVRModel:
         joblib.dump(self.model, model_filename)
 
 
-class LinearSVRModel:
+class LinearSVRModel(Model):
     def __init__(self):
+        super().__init__()
         pass
 
     def __del__(self):
@@ -157,6 +193,20 @@ class LinearSVRModel:
 
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
 
     def model_summary(self):
         pass
@@ -166,10 +216,13 @@ class LinearSVRModel:
         print(f'Saving model to {model_filename}...')
         joblib.dump(self.model, model_filename)
 
-### Classification Models
 
-class SVCModel:
+'''
+>>> Classification Models: SVC, NuSVC, LinearSVC
+'''
+class SVCModel(Model):
     def __init__(self):
+        super().__init__()
         self.model = None
         self.model_sum = None
 
@@ -251,6 +304,20 @@ class SVCModel:
 
         print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
 
     def model_summary(self):
         SVC_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
@@ -284,8 +351,9 @@ class SVCModel:
         joblib.dump(self.model_sum, model_summary_filename)
 
 
-class NuSVCModel:
+class NuSVCModel(Model):
     def __init__(self):
+        super().__init__()
         pass
 
     def __del__(self):
@@ -322,6 +390,20 @@ class NuSVCModel:
 
         print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
 
     def model_summary(self):
         pass
@@ -332,8 +414,9 @@ class NuSVCModel:
         joblib.dump(self.model, model_filename)
 
 
-class LinearSVCModel:
+class LinearSVCModel(Model):
     def __init__(self):
+        super().__init__()
         pass
 
     def __del__(self):
@@ -371,6 +454,21 @@ class LinearSVCModel:
         # print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
         pass
 
+    def create_model(self):
+        pass
+
+    def example(self):
+        pass
+
+    def fit_model(self):
+        pass
+
+    def predict(self):
+        pass
+
+    def evaluate_model(self):
+        pass
+    
     def model_summary(self):
         pass
 
