@@ -1,4 +1,5 @@
 from src.setups.setup import Setup
+import random
 
 class CrossMMSetupWIN(Setup):
     def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
@@ -19,13 +20,19 @@ class CrossMMSetupWIN(Setup):
         }
 
         self.__setup_params = {
-            'volume': None,
-            'tp': None,
-            'sl': None,
+            'volume': 1.0,
+            'tp': 100.0,
+            'sl': 100.0,
             'position_modify': None,
             'position_close': None,
             'breakeven': None,
-            'trailing_stop': None
+            'trailing_stop': None,
+        }
+
+        self.__backtest_info = {
+            'order': [],
+            'positions': [],
+            'position_closed': [],
         }
 
     def __del__(self):
@@ -33,48 +40,43 @@ class CrossMMSetupWIN(Setup):
         del self.__dataframe
         del self.__indicator_params
         del self.__setup_params
-        
-
-    def set_take_profit(self, tp: float) -> None:
-        self.__setup_params['tp'] = tp
-
-    def set_stop_loss(self, sl: float) -> None:
-        self.__setup_params['sl'] = sl
-
-    def set_volume(self, volume: float) -> None:
-        self.__setup_params['volume'] = volume
-
-    def set_breakeven(self, qtd: int, **kwargs) -> None:
-        
-        if qtd == 0:
-            self.__setup_params['breakeven'] = None
-            return
-
-        self.__setup_params['breakeven'] = []
-
-        for i in range(qtd):
-            self.__setup_params['breakeven'].append((be, to))
-
-    def set_trailing_stop(self):
-        pass
-
-    def set_position_modify(self, value: float):
-        if value == None:
-            self.__setup_params['position_modify'] = None
-            return
-
-        self.__setup_params['position_modify'] = value
-        
-    def set_position_close(self, value: float):
-        if value == None:
-            self.__setup_params['position_close'] = None
-            return
-
-        self.__setup_params['position_close'] = value
 
     def get_setup_dataframe(self):
         return self.__dataframe
 
+    def get_position_side(self, ticket: int) -> str or None:
+        for position in self.__backtest_info['order']:
+            if position['ticket'] == ticket:
+                return position['side']
+
+        return None
+    
+    def get_position_price(self, ticket: int) -> None:
+        for position in self.__backtest_info['order']:
+            if position['ticket'] == ticket:
+                return position['price']
+
+        return None
+
+    def get_position_take_profit(self, ticket: int) -> None:
+        for position in self.__backtest_info['order']:
+            if position['ticket'] == ticket:
+                return position['tp']
+
+        return None
+
+    def get_position_stop_loss(self, ticket: int) -> None:
+        for position in self.__backtest_info['order']:
+            if position['ticket'] == ticket:
+                return position['sl']
+
+        return None
+
+    def get_take_profit(self) -> float or None:
+        return self.__setup_params['tp'] if self.__setup_params['tp'] != None else None
+
+    def get_stop_loss(self) -> float or None:
+        return self.__setup_params['sl'] if self.__setup_params['sl'] != None else None
 
     def create_strategy(self, dataframe):
 
@@ -94,9 +96,9 @@ class CrossMMSetupWIN(Setup):
         signal.append(None)
 
         for i in range(1, len(dataframe['Close'])):
-            if self.signal_buy(dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
+            if self.signal_buy(dataframe['Close'], dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
                 signal.append(True)
-            elif self.signal_sell(dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
+            elif self.signal_sell(dataframe['Close'], dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
                 signal.append(False)
             else:
                 signal.append(None)
@@ -107,7 +109,6 @@ class CrossMMSetupWIN(Setup):
 
         self.__dataframe = dataframe
 
-        print(dataframe)
 
     '''>>> Override'''
     def get_setup_params(self):
@@ -116,14 +117,105 @@ class CrossMMSetupWIN(Setup):
     def get_indicators_params():
         return self.__indicators_params
 
-    def signal_buy(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+    def get_any_position(self) -> bool:
+        return True if self.__backtest_info['order'] != [] else False
+    
+    def get_orders(self) -> list:
+        return self.__backtest_info['order'] if self.__backtest_info['order'] != [] else []
+
+    def signal_buy(self, price: float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if (mml_last < mms_last and mml_previous > mms_previous) else False
     
-    def signal_sell(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+    def signal_sell(self, price:float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if mml_last > mms_last and mml_previous < mms_previous else False
 
-    def get_stack_info_from_pre_setup_processing(self, datetime, price, results, **kwargs):
-        return
+    '''>>> Backtest functions'''
+    def set_order_entry(self, date, side, price, comment):
+        if side == 'BUY':
+            tp = price + self.get_take_profit()
+            sl = price - self.get_stop_loss()
+        elif side == 'SELL':
+            tp = price - self.get_take_profit()
+            sl = price + self.get_stop_loss()
+        
+        self.__backtest_info['order'].append(
+            {
+                'ticket': random.randint(1, 100000) + round(random.randint(1, 5)*random.random()) + price,
+                'date': date,
+                'price': price,
+                'side': side,
+                'comment': comment,
+                'tp': tp,
+                'sl': sl,
+            }
+        )
+
+    def set_position_close(self, ticket=None, date=None, price=None, position=None, comment=''):
+        
+        if position != None:
+            self.__backtest_info['position_closed'].append({
+                'ticket': ticket,
+                'date': date,
+                'price': price,
+                'comment': comment,
+                'tp': self.get_position_take_profit(ticket),
+                'sl': self.get_position_stop_loss(ticket),
+            })
+
+        self.__backtest_info['order'] = list(filter(lambda order: order['ticket'] != ticket, self.__backtest_info['order']))
+
+    def set_backtest_take_profit(self, value):
+        if self.get_backtest_order():
+            self.__backtest_info['take_profit'] = self.__backtest_info['take_profit']
+        else:
+            self.__backtest_info['take_profit'] = value
+
+    def set_backtest_stop_loss(self, value):
+        if self.get_backtest_order():
+            self.__backtest_info['stop_loss'] = self.__backtest_info['stop_loss']
+        else:
+            self.__backtest_info['stop_loss'] = value
+
+    def __get_backtesting_info(self):
+        return self.__backtest_info
+
+    def get_stack_info_from_pre_setup_processing(self, stack_info, results):
+        datetime, price, indicator_args = stack_info
+
+        for i in results:
+            if results['order_entry'] == True:
+                if results['side'] == 'BUY':
+                    self.set_order_entry(date=datetime, side='BUY', price=price, comment='Comment')
+                    
+                elif results['side'] == 'SELL':
+                    self.set_order_entry(date=datetime, side='SELL', price=price, comment='Comment')
+
+            for position in results['positions_to_close']:
+                if position['comment'] == 'Close by take profit':
+                    self.set_position_close(ticket=position['ticket'], date=datetime, price=price, position=results['positions_to_close'], comment=position['comment'])
+                
+                elif position['comment'] == 'Close by stop loss':
+                    self.set_position_close(ticket=position['ticket'], date=datetime, price=price, position=results['positions_to_close'], comment=position['comment'])
+
+
+    def get_signal_buy_from_setup(self, price: float, **kwargs):
+
+        mml_last = kwargs['kwargs'][0]
+        mms_last = kwargs['kwargs'][1]
+        mml_previous = kwargs['kwargs'][2]
+        mms_previous = kwargs['kwargs'][3]
+
+        return self.signal_buy(price=price, mml_last=mml_last, mms_last=mms_last, mml_previous=mml_previous, mms_previous=mms_previous)
     
+    def get_signal_sell_from_setup(self, price: float, **kwargs):
+
+        mml_last = kwargs['kwargs'][0]
+        mms_last = kwargs['kwargs'][1]
+        mml_previous = kwargs['kwargs'][2]
+        mms_previous = kwargs['kwargs'][3]
+
+        return self.signal_sell(price=price, mml_last=mml_last, mms_last=mms_last, mml_previous=mml_previous, mms_previous=mms_previous)
+
     def export_backtesting_info(self):
-        return
+        print(self.__backtest_info)
+        return self.__get_backtesting_info()

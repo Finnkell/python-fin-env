@@ -1,10 +1,9 @@
 class SetupPreProcessingInfos(object):
     def __init__(self, setup: 'Setup') -> None:
-        self.__setup = None
+        self.__setup = setup
 
         self.__take_profit = 0.0
         self.__stop_loss = 0.0
-        
 
         self.__is_take_profit = False
         self.__is_stop_loss = False
@@ -16,6 +15,7 @@ class SetupPreProcessingInfos(object):
         self.__start_date = None
         self.__end_data = None
 
+        # self.__result = None
 
     def __del__(self):
         del self.__setup
@@ -32,6 +32,9 @@ class SetupPreProcessingInfos(object):
         
         del self.__start_date
         del self.__end_data
+
+    def __str__(self):
+        return f'Setup: {self.__setup}'
 
     def set_take_profit(self, tp: float) -> None:
         if self.param_validation(tp):
@@ -59,11 +62,11 @@ class SetupPreProcessingInfos(object):
 
 
 
-    def get_take_profit(self) -> float:
-        return self.__take_profit
+    def get_setup_take_profit(self, ticket) -> float:
+        return self.__setup.get_take_profit(ticket)
 
-    def get_stop_loss(self) -> float:
-        return self.__stop_loss
+    def get_setup_stop_loss(self) -> float:
+        return self.__setup.get_stop_loss()
 
     def get_position_modify(self) -> float:
         return self.__position_modify
@@ -71,7 +74,14 @@ class SetupPreProcessingInfos(object):
     def get_position_close(self) -> float:
         return self.__position_close
 
+    def get_setup_position_side(self) -> str:
+        return self.__setup.get_position_side()
 
+    def get_setup_signal_buy(self, price, **kwargs):
+        return self.__setup.get_signal_buy_from_setup(price, kwargs=kwargs['kwargs'])
+
+    def get_setup_signal_sell(self, price, **kwargs):
+        return self.__setup.get_signal_sell_from_setup(price, kwargs=kwargs['kwargs'])
 
     def get_is_take_profit(self) -> bool:
         return self.__is_take_profit
@@ -85,9 +95,15 @@ class SetupPreProcessingInfos(object):
     def get_is_position_close(self) -> bool:
         return self.__is_position_closed
 
+    def have_positions(self):
+        return self.__setup.get_any_position()
 
+    def get_orders(self):
+        return self.__setup.get_orders()
 
     def is_date_valid(self, date: str) -> bool:
+        return True
+
         if self.__start_date != None or self.__end_data != None:
             if date <= self.__end_date and date >= self.__start_date:
                 return True
@@ -99,11 +115,11 @@ class SetupPreProcessingInfos(object):
 
     def verify_setup_params(self):
         params = self.__setup.get_setup_params()
-
+        
         valid_params = {}
 
-        for i in range(len(params)):
-            if params[i] != None:
-                valid_params[i] = params[i]
+        for element in params.keys():
+            if params[element] != None:
+                valid_params[element] = params[element]
 
         return valid_params
