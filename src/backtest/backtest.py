@@ -7,12 +7,18 @@ plt.style.use('seaborn')
 
 
 class Backtest(object):
-    def __init__(self, setup: 'Setup', dataframe: pd.DataFrame) -> None:
-        self.setup = setup
-        self.setup_dataframe = dataframe
+    def __init__(self, setup: 'Setup()', dataframe: pd.DataFrame()) -> None:
+        self.__setup = setup
+        self.__setup_dataframe = dataframe
+
+        self.__log_list = []
 
     def __del__(self):
-        pass
+        del self.__setup
+        del self.__setup_dataframe
+
+        del self.__log_list
+
 
     def is_stack_empty(self, stack: list) -> bool:
         if len(stack) == 0:
@@ -20,73 +26,141 @@ class Backtest(object):
           
         return False
 
-    def is_dataframe_empty(self, dataframe: pd.DataFrame) -> bool:
+    def is_dataframe_empty(self, dataframe: pd.DataFrame()) -> bool:
         if len(dataframe) == 0:
             return True
 
         return False
 
-    def setup_pre_processing_infos(self, stack_info: tuple) -> dict:
+    def setup_pre_processing_infos(self, stack_info: tuple, row: list) -> dict:
         setup_pre_processing_infos = SetupPreProcessingInfos(self.__setup)
 
-        setup_pre_processing_infos.verify_setup_params()
+        setup_params = setup_pre_processing_infos.verify_setup_params()
 
         results = {}
+        positions_to_close = []
 
-        signal = self.setup_dataframe.index[stack[0]]
+        if setup_pre_processing_infos.is_date_valid(stack_info[0]):
+            results['date'] = stack_info[0]
 
-        if setup_infos.is_date_valid():
-            restults['date'] = stack_info[1]
+            if setup_pre_processing_infos.have_positions():
+                for order in setup_pre_processing_infos.get_orders():
+                    if order['side'] == 'BUY':
+                        if order['tp'] >= stack_info[1]:
+                            positions_to_close.append(
+                                {
+                                    'side': order['side'],
+                                    'ticket': order['ticket'],
+                                    'comment': 'Close by take profit'
+                                }
+                            )
+                        elif order['sl'] <= stack_info[1]:
+                            positions_to_close.append(
+                                {
+                                    'side': order['side'],
+                                    'ticket': order['ticket'],
+                                    'comment': 'Close by stop loss'
+                                }
+                            )
+                    elif order['side'] == 'SELL':
+                        if order['tp'] <= stack_info[1]:
+                            positions_to_close.append(
+                                {
+                                    'side': order['side'],
+                                    'ticket': order['ticket'],
+                                    'comment': 'Close by take profit'
+                                }
+                            )
+                        elif order['sl'] >= stack_info[1]:
+                            positions_to_close.append(
+                                {
+                                    'side': order['side'],
+                                    'ticket': order['ticket'],
+                                    'comment': 'Close by stop loss'
+                                }
+                            )
 
-            if stack_info[2] == 'BUY':
-                results['take_profit'] = True if stack_info[0] <= setup_pre_processing_infos.get_take_profit() else False
-                results['stop_loss'] = True if stack_info[0] >= setup_pre_processing_infos.get_stop_loss() else False
-
-                results['position_modify'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_modify() else False
-                results['position_close'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_close() else False
-
-            elif stack_info[2] == 'SELL':
-                results['take_profit'] = True if stack_info[0] <= setup_pre_processing_infos.get_take_profit() else False
-                results['stop_loss'] = True if stack_info[0] >= setup_pre_processing_infos.get_stop_loss() else False
-
-                results['position_modify'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_modify() else False
-                results['position_close'] = True if stack_info[0] >= setup_pre_processing_infos.get_position_close() else False
-
-            else:
+                results['positions_to_close'] = positions_to_close
+                results['order_entry'] = False
+                results['side'] = False
                 results['take_profit'] = False
                 results['stop_loss'] = False
                 results['position_modify'] = False
                 results['position_close'] = False
+            else:
+                if setup_pre_processing_infos.get_setup_signal_buy(stack_info[1], kwargs=stack_info[2]):
+                    results['order_entry'] = True
+                    results['side'] = 'BUY'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif setup_pre_processing_infos.get_setup_signal_sell(stack_info[0], kwargs=stack_info[2]):
+                    results['order_entry'] = True
+                    results['side'] = 'SELL'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                else:
+                    results['order_entry'] = False
+                    results['side'] = False
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
 
         return results
 
 
-    def send_setup_stack_info(self, dataframe: pd.DataFrame) ->  None:
+    def send_setup_stack_info(self) ->  None:
         stack = []
 
-        while not self.is_dataframe_empty(dataframe=dataframe):
+        dataframe = self.__setup_dataframe
+        tam = len(dataframe)
+        i = 0
+        while i <= 3:
             if self.is_stack_empty(stack=stack):
-                stack = list(dataframe.iloc[0]) 
-                dataframe = dataframe.drop(labels=data.index[0], axis=0, inplace=True)
+                stack = [dataframe.iloc[0][0] + ' ' + dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4], dataframe.iloc[0][5]]
+
+                indicator_args = [i for i in dataframe.iloc[0][6:]]
+
+                dataframe = dataframe.drop(labels=dataframe.index[0], axis=0, 
+                inplace=False)
+
                 time = stack[0]
                 stack.remove(time)
-            
+
+            if len(dataframe) == 0:
+                    break
+
             value = stack[0]
             stack.remove(value)
 
-            stack_info = (time, value)
+            stack_info = (time, value, indicator_args)
 
-            results = self.setup_pre_processing_infos(stack_info)
+            results = self.setup_pre_processing_infos(stack_info, dataframe.iloc[0])
 
-            self.processing_backtest_info_from_setup(results=results)
-            self.export_backtest_log_report(results)
+            self.__setup.get_stack_info_from_pre_setup_processing(stack_info, results)
 
 
-    def processing_backtest_info_from_setup(self, results: dict):
+            infos = self.__setup.export_backtesting_info()
+
+            self.processing_backtest_info_from_setup(results=infos)
+            self.export_backtest_log_report(infos)
+
+            i = i + 1
+
+
+    def processing_backtest_info_from_setup(self, results: dict) -> None:
         return
 
-    def export_backtest_log_report(self, results: dict):
-        return
+    def export_backtest_log_report(self, results: dict) -> print:
+        self.__log_list.append(results)
 
-    def run_backtest(self):
-        return
+    def run_backtest(self, dataframe: pd.DataFrame()) -> None:
+        self.__setup_dataframe = dataframe
+        self.send_setup_stack_info()

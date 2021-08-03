@@ -98,3 +98,11 @@ class Setup(metaclass=ABCMeta):
     @abstractmethod
     def export_backtesting_info(self):
         pass
+
+    @abstractmethod
+    def get_orders(self):
+        pass
+
+    @abstractmethod
+    def get_any_position(self):
+        pass

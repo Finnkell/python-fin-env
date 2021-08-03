@@ -36,13 +36,13 @@ class ServerTest(unittest.TestCase):
         self.assertIsNotNone(server.get_symbol_info(self.symbol), "Couldn\'t get {self.symbol} info")
 
     def test_get_symbol_bid(self):
-        self.assertIsNotNone(server.get_symbol_last_bid(symbol=self.symbol), "Couldn\'t get {self.symbol} bid")
+        self.assertIsNotNone(server.get_symbol_bid(symbol=self.symbol), "Couldn\'t get {self.symbol} bid")
 
     def test_get_symbol_ask(self):
-        self.assertIsNotNone(server.get_symbol_last_ask(symbol=self.symbol), "Couldn\'t get {self.symbol} ask")
+        self.assertIsNotNone(server.get_symbol_ask(symbol=self.symbol), "Couldn\'t get {self.symbol} ask")
 
     def test_get_symbol_volume(self):
-        self.assertIsNotNone(server.get_symbol_last_volume(symbol=self.symbol), "Couldn\'t get {self.symbol} volume")
+        self.assertIsNotNone(server.get_symbol_volume(symbol=self.symbol), "Couldn\'t get {self.symbol} volume")
 
     def test_get_symbol_last(self):
         self.assertIsNotNone(server.get_symbol_last_price(symbol=self.symbol), "Couldn\'t get {self.symbol} last price")

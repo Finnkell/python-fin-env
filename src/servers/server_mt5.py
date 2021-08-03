@@ -9,7 +9,7 @@ timeframes = {
     'TIMEFRAME_M6': mt5.TIMEFRAME_M6,
     'TIMEFRAME_M10': mt5.TIMEFRAME_M10,
     'TIMEFRAME_M12': mt5.TIMEFRAME_M12,
-    'TIMEFRAME_M12': mt5.TIMEFRAME_M12,
+    'TIMEFRAME_M15': mt5.TIMEFRAME_M15,
     'TIMEFRAME_M20': mt5.TIMEFRAME_M20,
     'TIMEFRAME_M30': mt5.TIMEFRAME_M30,
     'TIMEFRAME_H1': mt5.TIMEFRAME_H1,
@@ -65,6 +65,7 @@ class MetaTraderConnection():
 
     def get_symbol_ohlc(self, symbol: str, timeframe: str, date: str=0, count: int=1) -> 'DataFrame':
         self.verify_symbol(symbol)
+        timeframe = self.get_timeframe(timeframe)
         return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
     def get_orders(self, symbol: str=None, ticket: str=None, group: str=None) -> 'DataFrame':
@@ -93,8 +94,7 @@ class MetaTraderConnection():
     def get_positions_total(self) -> int:
         return mt5.positions_total()
 
-
-    def get_symbol_info(self, symbol: float=None) -> 'DataFrame':
+    def get_symbol_info(self, symbol: str=None) -> 'DataFrame':
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol)
 
@@ -404,5 +404,7 @@ class MetaTraderConnection():
         if symbol == None:
             raise ValueError
 
-        if not mt5.symbol_select(symbol):
+        selected = mt5.symbol_select(symbol)
+
+        if not selected:
             raise NameError
