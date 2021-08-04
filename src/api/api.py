@@ -9,7 +9,6 @@ error_handlers = ErrorHandlers()
 
 app = Flask(__name__)
 
-#ADD: Read models form pkl file
 MODEL_SVR = joblib.load('src/api/models/SVR.pkl')
 MODEL_NU_SVR = joblib.load('src/api/models/SVR.pkl')
 MODEL_LINEAR_SVR = joblib.load('src/api/models/SVR.pkl')
@@ -19,7 +18,6 @@ MODEL_NU_SVC = joblib.load('src/api/models/SVC.pkl')
 MODEL_LINEAR_SVC = joblib.load('src/api/models/SVC.pkl')
 MODEL_DECISION_TREE_CLASSIFIER = joblib.load('src/api/models/DecisionTreeClassifier.pkl')
 
-#ADD: Read Classifier model labels
 MODEL_SVC_LABELS = ['BUY', 'SELL', 'HOLD']
 
 HTTP_NOT_FOUND = 404
@@ -178,6 +176,6 @@ def verify_field(params_field_value=[], params_field_names=[]):
 def get_decision_tree_stats():
     return jsonify(status='complete')
 
-
+'''>>> Server run method'''
 def server_run(debug=True, host='127.0.0.1', port=5000):
     app.run(debug=debug, host=host, port=port, threaded=True)

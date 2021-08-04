@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 class ARIMAModel:
-#%%
     def __init__(self):
         self.model = None
         self.model_fit = None
@@ -23,7 +22,6 @@ class ARIMAModel:
         self.y = None
 
         self.order = (1, 0, 0)
-#%%
 
     def set_data(self, sample, test_size=0.2, return_period=10):
         X = self.data_analysis(np.array(sample).reshape(-1, 1))
@@ -37,7 +35,6 @@ class ARIMAModel:
         self.X_train, self.X_test = X[0: train_size], X[train_size:len(X)]
         self.y_train, self.y_test = y[0: train_size], y[train_size:len(X)]
 
-#%%
     def data_analysis(self, sample):
         dataframe = pd.DataFrame(sample)
         scaler = StandardScaler()
@@ -47,7 +44,7 @@ class ARIMAModel:
 
         return pd.DataFrame(transformed_dataframe, columns=['Close'])
         
-#%%
+
     def create_model(self):
         self.model = ARIMA(endog=self.X_train, exog=self.y_train, order=self.order)
 
@@ -92,14 +89,20 @@ class SARIMAXModel:
 
         self.order = ()
 
-    def create_mode(self):
+    def create_model(self):
         pass
 
-    def train_model(self):
+    def fit_model(self):
         pass
 
-    def predict_model(self):
+    def predict(self):
         pass
 
     def evaluate_model(self):
         pass
+
+    def save_model(self):
+        pass
+
+    def model_summary(self):
+        print(self.model_fit.summary()) if self.model_fit != None else print(f'The model ins\'t fitted!')
