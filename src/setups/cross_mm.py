@@ -114,7 +114,7 @@ class CrossMMSetupWIN(Setup):
     def get_setup_params(self):
         return self.__setup_params
 
-    def get_indicators_params():
+    def get_indicators_params(self):
         return self.__indicators_params
 
     def get_any_position(self) -> bool:
@@ -126,7 +126,7 @@ class CrossMMSetupWIN(Setup):
     def signal_buy(self, price: float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if (mml_last < mms_last and mml_previous > mms_previous) else False
     
-    def signal_sell(self, price:float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+    def signal_sell(self, price: float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if mml_last > mms_last and mml_previous < mms_previous else False
 
     '''>>> Backtest functions'''
@@ -144,22 +144,29 @@ class CrossMMSetupWIN(Setup):
                 'date': date,
                 'price': price,
                 'side': side,
-                'comment': comment,
                 'tp': tp,
                 'sl': sl,
+                'comment': comment,
             }
         )
 
-    def set_position_close(self, ticket=None, date=None, price=None, position=None, comment=''):
+    def set_position_close(self, ticket=None, start_date=None, end_date=None, price=None, position=None, comment=''):
         
+        if comment == 'Close by take profit':
+            result = self.get_position_take_profit(ticket) - price
+        else: 
+            result = self.get_position_stop_loss(ticket) - price
+
         if position != None:
             self.__backtest_info['position_closed'].append({
                 'ticket': ticket,
-                'date': date,
+                'start_date': start_date,
+                'end_date': end_date,
                 'price': price,
-                'comment': comment,
                 'tp': self.get_position_take_profit(ticket),
                 'sl': self.get_position_stop_loss(ticket),
+                'comment': comment,
+                'result': result
             })
 
         self.__backtest_info['order'] = list(filter(lambda order: order['ticket'] != ticket, self.__backtest_info['order']))
@@ -180,33 +187,32 @@ class CrossMMSetupWIN(Setup):
         return self.__backtest_info
 
     def get_stack_info_from_pre_setup_processing(self, stack_info, results):
-        datetime, price, indicator_args = stack_info
+        datetime, price, _ = stack_info
 
-        for i in results:
-            if results['order_entry'] == True:
-                if results['side'] == 'BUY':
-                    self.set_order_entry(date=datetime, side='BUY', price=price, comment='Comment')
+        for i in [results]:
+            if i['order_entry'] == True:
+                if i['side'] == 'BUY':
+                    self.set_order_entry(date=datetime, side='BUY', price=price, comment='BUY order entry')
                     
-                elif results['side'] == 'SELL':
-                    self.set_order_entry(date=datetime, side='SELL', price=price, comment='Comment')
+                elif i['side'] == 'SELL':
+                    self.set_order_entry(date=datetime, side='SELL', price=price, comment='SELL order entry')
 
-            for position in results['positions_to_close']:
+            for position in i['positions_to_close']:
                 if position['comment'] == 'Close by take profit':
-                    self.set_position_close(ticket=position['ticket'], date=datetime, price=price, position=results['positions_to_close'], comment=position['comment'])
+                    self.set_position_close(ticket=position['ticket'], start_date=position['start_time'], end_date=datetime, price=position['price'], position=i['positions_to_close'], comment=position['comment'])
                 
                 elif position['comment'] == 'Close by stop loss':
-                    self.set_position_close(ticket=position['ticket'], date=datetime, price=price, position=results['positions_to_close'], comment=position['comment'])
+                    self.set_position_close(ticket=position['ticket'], start_date=position['start_time'], end_date=datetime, price=position['price'], position=i['positions_to_close'], comment=position['comment'])
 
 
     def get_signal_buy_from_setup(self, price: float, **kwargs):
-
         mml_last = kwargs['kwargs'][0]
         mms_last = kwargs['kwargs'][1]
         mml_previous = kwargs['kwargs'][2]
         mms_previous = kwargs['kwargs'][3]
 
         return self.signal_buy(price=price, mml_last=mml_last, mms_last=mms_last, mml_previous=mml_previous, mms_previous=mms_previous)
-    
+
     def get_signal_sell_from_setup(self, price: float, **kwargs):
 
         mml_last = kwargs['kwargs'][0]
