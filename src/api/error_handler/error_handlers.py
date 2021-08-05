@@ -17,4 +17,4 @@ class ErrorHandlers:
     def not_found(self, error_description, error_code):
         http_cat_image = self.APIErrorHandler(error_code)
 
-        return render_template('public/error_template.html', cat_image=http_cat_image, error_message_description=error_description), error_code
+        return render_template('public/error/error_template.html', cat_image=http_cat_image, error_message_description=error_description), error_code

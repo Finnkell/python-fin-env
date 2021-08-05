@@ -21,13 +21,11 @@ start = time.perf_counter()
 
 setup = CrossMMSetupWIN()
 
-backtest = Backtest(setup=setup, dataframe=dataframe)
+t1 = threading.Thread(target=server_run())
 
-t3 = threading.Thread(target=backtest.run_backtest(dataframe))
+t1.start()
 
-t3.start()
-
-t3.join()
+t1.join()
 
 finish = time.perf_counter()
 

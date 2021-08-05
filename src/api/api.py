@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify, render_template, Response
-import joblib
-
 from werkzeug.exceptions import HTTPException, BadRequest, InternalServerError
+import os
+import joblib
 
 from src.api.error_handler.error_handlers import ErrorHandlers
 
-error_handlers = ErrorHandlers()
-
 app = Flask(__name__)
+
+error_handlers = ErrorHandlers()
 
 MODEL_SVR = joblib.load('src/api/models/SVR.pkl')
 MODEL_NU_SVR = joblib.load('src/api/models/SVR.pkl')
@@ -25,7 +25,8 @@ HTTP_BAD_REQUEST = 400
 
 HTTP_INTERNAL_ERROR = 500
 
-HOME_LABEL = 'public/home.html'
+HOME_LABEL = 'public/home/home.html'
+SVC_LABEL = 'public/svm/svc_home.html'
 
 @app.errorhandler(HTTP_NOT_FOUND)
 def page_404_error_handler(e):
@@ -46,6 +47,10 @@ def app_root():
 #TODO: Validate query params
 @app.route('/svc_predict')
 def svc_predict():
+
+    if len(request.args) == 0:
+        return render_template(SVC_LABEL)
+
     values_list = [request.args.get('open_price'), request.args.get('high_price'), request.args.get('low_price'), request.args.get('close_price')]
     names_list = ['open_price', 'high_price', 'low_price', 'close_price']
 
@@ -129,27 +134,38 @@ def predict_decision_tree():
 
     return jsonify(status='complete', label=f"{'BUY' if label == 1 else 'SELL' if label == 0 else label}")
 
+@app.route('/decision_tree_stats')
+def get_decision_tree_stats():
+    return jsonify(status='complete')
+
+
+'''
+>>> Server methods
+'''
+def server_run(debug=True, host='127.0.0.1', port=5000):
+    app.run(debug=debug, host=host, port=port, threaded=True)
+
 def verify_field(params_field_value=[], params_field_names=[]):
     features = []
 
     featuresDict = {}
 
     if len(params_field_value) != len(params_field_names):
-        raise("Array size different")
+        raise('Array size different')
 
     while len(params_field_names) > 0:
         field_name = params_field_names.pop()
 
-        if request.args.get( field_name ) == None:
+        if request.args.get(field_name) == None:
             if 'Content-Type' in request.headers:
                 message = (f'{field_name} field not filled')
             
-                response = jsonify({'status':f'error {HTTP_BAD_REQUEST}', 'error_message':message})
+                response = jsonify({'status': f'error {HTTP_BAD_REQUEST}', 'error_message': message})
                 response.status_code = HTTP_BAD_REQUEST
 
                 return response
 
-            raise BadRequest(description="The browser (or proxy) sent a request that this server could not understand. Maybe you didn\'t expecify the {field_name} field")
+            raise BadRequest(description=f'The browser (or proxy) sent a request that this server could not understand. Maybe you didn\'t expecify the {params_field_names} field')
 
         field_value = params_field_value.pop()
 
@@ -161,21 +177,13 @@ def verify_field(params_field_value=[], params_field_names=[]):
             if 'Content-Type' in request.headers:
                 message = (f'{field_name} field not filled')
             
-                response = jsonify({'status':f'error {HTTP_INTERNAL_ERROR}', 'error_message':message})
+                response = jsonify({'status': f'error {HTTP_INTERNAL_ERROR}', 'error_message': message})
                 response.status_code = HTTP_INTERNAL_ERROR
 
                 return response
 
-            raise BadRequest(description="Cannot convert {field_value} to float")
+            raise BadRequest(description=f'Cannot convert {field_value} to float')
 
         features.append( field_value )
 
     return features.reverse()
-
-@app.route('/decision_tree_stats')
-def get_decision_tree_stats():
-    return jsonify(status='complete')
-
-'''>>> Server run method'''
-def server_run(debug=True, host='127.0.0.1', port=5000):
-    app.run(debug=debug, host=host, port=port, threaded=True)
