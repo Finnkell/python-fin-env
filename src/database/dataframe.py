@@ -1,4 +1,4 @@
-class Data(Object):
+class Data(object):
     def __init__(self):
         return
 

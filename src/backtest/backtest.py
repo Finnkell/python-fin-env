@@ -12,6 +12,8 @@ class Backtest(object):
 
         if self.__setup is not None:
             self.__setup_dataframe = self.__setup.create_strategy(dataframe=dataframe)
+        else: 
+            raise ValueError
             
         self.__log_list = []
         self.__backtest_log_report_infos = []
@@ -133,13 +135,16 @@ class Backtest(object):
 
         dataframe = self.__setup_dataframe
         tam = len(dataframe)
+        volume = self.__setup.get_volume()
         
         while not self.is_dataframe_empty(dataframe):
             if self.is_stack_empty(stack=stack):
-                # stack = [dataframe.iloc[0][0] + ' ' + dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4], dataframe.iloc[0][5]]
-                stack = [dataframe.iloc[0][0], dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4]]
+                stack = [dataframe.iloc[0][0] + ' ' + dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4], dataframe.iloc[0][5]]
+                # stack = [dataframe.iloc[0][0], dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4]]
 
                 signal = dataframe.iloc[0][-1]
+
+                print(dataframe)
 
                 dataframe = dataframe.drop(labels=dataframe.index[0], axis=0, 
                 inplace=False)
@@ -150,12 +155,12 @@ class Backtest(object):
             if len(dataframe) == 0:
                     break
 
-            print(f'{len(dataframe)} from {tam*4}')
+            # print(f'{len(dataframe)} from {tam*4}')
 
             value = stack[0]
             stack.remove(value)
 
-            stack_info = (time, value, signal)
+            stack_info = (time, value, volume, signal)
 
             results = self.setup_pre_processing_infos(stack_info)
 
@@ -163,19 +168,30 @@ class Backtest(object):
 
             infos = self.__setup.export_backtesting_info()
 
-            self.processing_backtest_info_from_setup(results=infos)
             self.export_backtest_log_report(results=infos)
 
-        self.__backtest_log_report_infos = pd.DataFrame.from_dict(self.__backtest_log_report_infos[-1]['position_closed'])
-        self.__backtest_log_report_infos.plot()
-        plt.show()
 
-    def processing_backtest_info_from_setup(self, results: dict) -> None:
-        self.__backtest_log_report_infos.append(results)
+    def processing_backtest_info_from_setup(self) -> None:
+        self.__backtest_log_report_infos = pd.DataFrame.from_dict(self.__backtest_log_report_infos[-1]['position_closed'])
+
+        total_op = len(self.__backtest_log_report_infos)
+        print(self.__backtest_log_report_infos)
+
+        # qtd_profit = self.__backtest_log_report_infos.loc['result'] > 0
+        # qtd_loss = self.__backtest_log_report_infos.loc['result'] < 0
+        
+        # print(f'Total de Lucro Bruto: {round(qtd_profit.sum(), 2)}')
+        # print(f'Total de trades lucrativos: {len(qtd_profit)}')
+
+        # print(f'Total de Perda Bruto: {round(qtd_loss.sum(), 2)}')
+        # print(f'Total de trades prejudicial: {len(qtd_loss)}')
+        
 
     def export_backtest_log_report(self, results: dict) -> print:
+        print(results)
+        self.__backtest_log_report_infos.append(results)
         self.__log_list.append(results)
 
-    def run_backtest(self, dataframe: pd.DataFrame()) -> None:
-        self.__setup_dataframe = dataframe
+    def run_backtest(self) -> None:
         self.send_setup_stack_info()
+        self.processing_backtest_info_from_setup()

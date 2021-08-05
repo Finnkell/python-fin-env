@@ -5,8 +5,6 @@ class SetupPreProcessingInfos(object):
         self.__start_date = None
         self.__end_data = None
 
-        # self.__result = None
-
     def __del__(self):
         del self.__setup
 

@@ -96,11 +96,11 @@ class MetaTraderConnection():
 
     def get_symbol_info(self, symbol: str=None) -> 'DataFrame':
         self.verify_symbol(symbol)
-        return mt5.symbol_info(symbol)
+        return mt5.symbol_info(symbol) 
 
     def get_symbol_point(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info(symbol).point
+        return mt5.symbol_info(symbol).trade_tick_size
 
     def get_symbol_last_high(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
