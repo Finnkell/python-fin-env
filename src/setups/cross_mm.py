@@ -205,23 +205,5 @@ class CrossMMSetupWIN(Setup):
                     self.set_position_close(ticket=position['ticket'], start_date=position['start_time'], end_date=datetime, price=position['price'], position=i['positions_to_close'], comment=position['comment'])
 
 
-    def get_signal_buy_from_setup(self, price: float, **kwargs):
-        mml_last = kwargs['kwargs'][0]
-        mms_last = kwargs['kwargs'][1]
-        mml_previous = kwargs['kwargs'][2]
-        mms_previous = kwargs['kwargs'][3]
-
-        return self.signal_buy(price=price, mml_last=mml_last, mms_last=mms_last, mml_previous=mml_previous, mms_previous=mms_previous)
-
-    def get_signal_sell_from_setup(self, price: float, **kwargs):
-
-        mml_last = kwargs['kwargs'][0]
-        mms_last = kwargs['kwargs'][1]
-        mml_previous = kwargs['kwargs'][2]
-        mms_previous = kwargs['kwargs'][3]
-
-        return self.signal_sell(price=price, mml_last=mml_last, mms_last=mms_last, mml_previous=mml_previous, mms_previous=mms_previous)
-
     def export_backtesting_info(self):
-        print(self.__backtest_info)
         return self.__get_backtesting_info()

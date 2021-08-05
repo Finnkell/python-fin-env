@@ -9,15 +9,19 @@ plt.style.use('seaborn')
 class Backtest(object):
     def __init__(self, setup: 'Setup()', dataframe: pd.DataFrame()) -> None:
         self.__setup = setup
-        self.__setup_dataframe = dataframe
 
+        if self.__setup is not None:
+            self.__setup_dataframe = self.__setup.create_strategy(dataframe=dataframe)
+            
         self.__log_list = []
+        self.__backtest_log_report_infos = []
 
     def __del__(self):
         del self.__setup
         del self.__setup_dataframe
 
         del self.__log_list
+        del self.__backtest_log_report_infos
 
 
     def is_stack_empty(self, stack: list) -> bool:
@@ -32,7 +36,7 @@ class Backtest(object):
 
         return False
 
-    def setup_pre_processing_infos(self, stack_info: tuple, row: list) -> dict:
+    def setup_pre_processing_infos(self, stack_info: tuple) -> dict:
         setup_pre_processing_infos = SetupPreProcessingInfos(self.__setup)
 
         setup_params = setup_pre_processing_infos.verify_setup_params()
@@ -130,11 +134,12 @@ class Backtest(object):
         dataframe = self.__setup_dataframe
         tam = len(dataframe)
         
-        while not self.is_dataframe_empty( dataframe ):
+        while not self.is_dataframe_empty(dataframe):
             if self.is_stack_empty(stack=stack):
-                stack = [dataframe.iloc[0][0] + ' ' + dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4], dataframe.iloc[0][5]]
+                # stack = [dataframe.iloc[0][0] + ' ' + dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4], dataframe.iloc[0][5]]
+                stack = [dataframe.iloc[0][0], dataframe.iloc[0][1], dataframe.iloc[0][2], dataframe.iloc[0][3], dataframe.iloc[0][4]]
 
-                signal = [i for i in dataframe.iloc[0][-1]]
+                signal = dataframe.iloc[0][-1]
 
                 dataframe = dataframe.drop(labels=dataframe.index[0], axis=0, 
                 inplace=False)
@@ -145,24 +150,28 @@ class Backtest(object):
             if len(dataframe) == 0:
                     break
 
+            print(f'{len(dataframe)} from {tam*4}')
+
             value = stack[0]
             stack.remove(value)
 
             stack_info = (time, value, signal)
 
-            results = self.setup_pre_processing_infos(stack_info, dataframe.iloc[0])
+            results = self.setup_pre_processing_infos(stack_info)
 
             self.__setup.get_stack_info_from_pre_setup_processing(stack_info, results)
-
 
             infos = self.__setup.export_backtesting_info()
 
             self.processing_backtest_info_from_setup(results=infos)
-            self.export_backtest_log_report(infos)
+            self.export_backtest_log_report(results=infos)
 
+        self.__backtest_log_report_infos = pd.DataFrame.from_dict(self.__backtest_log_report_infos[-1]['position_closed'])
+        self.__backtest_log_report_infos.plot()
+        plt.show()
 
     def processing_backtest_info_from_setup(self, results: dict) -> None:
-        return
+        self.__backtest_log_report_infos.append(results)
 
     def export_backtest_log_report(self, results: dict) -> print:
         self.__log_list.append(results)
