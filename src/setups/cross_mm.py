@@ -3,8 +3,8 @@ from src.servers.server_mt5 import MetaTraderConnection
 
 server = MetaTraderConnection()
 
-POINT = server.get_symbol_point('PETR4')
-VALUE = server.get_symbol_info('PETR4').trade_tick_value
+POINT = server.get_symbol_point('WIN$N')
+VALUE = server.get_symbol_info('WIN$N').trade_tick_value
 
 import random
 
@@ -110,11 +110,12 @@ class CrossMMSetupWIN(Setup):
 
         signal = []
         signal.append(None)
+        signal.append(None)
 
-        for i in range(1, len(dataframe['Close'])):
-            if self.signal_buy(dataframe['Close'], dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
+        for i in range(2, len(dataframe['Close'])):
+            if self.signal_buy(dataframe['MML'][i - 2], dataframe['MMS'][i - 2], dataframe['MML'][i - 1], dataframe['MMS'][i - 1]):
                 signal.append(True)
-            elif self.signal_sell(dataframe['Close'], dataframe['MML'][i - 1], dataframe['MMS'][i - 1], dataframe['MML'][i], dataframe['MMS'][i]):
+            elif self.signal_sell(dataframe['MML'][i - 2], dataframe['MMS'][i - 2], dataframe['MML'][i - 1], dataframe['MMS'][i - 1]):
                 signal.append(False)
             else:
                 signal.append(None)
@@ -141,11 +142,11 @@ class CrossMMSetupWIN(Setup):
     def get_orders(self) -> list:
         return self.__backtest_info['order'] if self.__backtest_info['order'] != [] else []
 
-    def signal_buy(self, price: float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
-        return True if (mml_last < mms_last and mml_previous > mms_previous) else False
+    def signal_buy(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+        return True if (mml_last > mms_last and mml_previous < mms_previous) else False
     
-    def signal_sell(self, price: float, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
-        return True if mml_last > mms_last and mml_previous < mms_previous else False
+    def signal_sell(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
+        return True if mml_last < mms_last and mml_previous > mms_previous else False
 
     '''>>> Backtest functions'''
     def set_order_entry(self, date, side, price, volume, comment):
@@ -186,6 +187,7 @@ class CrossMMSetupWIN(Setup):
                 'ticket': ticket,
                 'start_date': start_date,
                 'end_date': end_date,
+                'in': side,
                 'price': price,
                 'tp': self.get_position_take_profit(ticket),
                 'sl': self.get_position_stop_loss(ticket),

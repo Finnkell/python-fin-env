@@ -56,6 +56,7 @@ class Backtest(object):
                             positions_to_close.append(
                                 {
                                     'price': order['price'],
+                                    'volume': order['volume'],
                                     'start_time': order['date'],
                                     'side': order['side'],
                                     'ticket': order['ticket'],
@@ -66,6 +67,7 @@ class Backtest(object):
                             positions_to_close.append(
                                 {
                                     'price': order['price'],
+                                    'volume': order['volume'],
                                     'start_time': order['date'],
                                     'side': order['side'],
                                     'ticket': order['ticket'],
@@ -77,6 +79,7 @@ class Backtest(object):
                             positions_to_close.append(
                                 {
                                     'price': order['price'],
+                                    'volume': order['volume'],
                                     'start_time': order['date'],
                                     'side': order['side'],
                                     'ticket': order['ticket'],
@@ -87,6 +90,7 @@ class Backtest(object):
                             positions_to_close.append(
                                 {
                                     'price': order['price'],
+                                    'volume': order['volume'],
                                     'start_time': order['date'],
                                     'side': order['side'],
                                     'ticket': order['ticket'],
@@ -102,7 +106,7 @@ class Backtest(object):
                 results['position_modify'] = False
                 results['position_close'] = False
             else:
-                if stack_info[2] == 'BUY':
+                if stack_info[3] == 'BUY':
                     results['order_entry'] = True
                     results['side'] = 'BUY'
                     results['take_profit'] = False
@@ -110,7 +114,7 @@ class Backtest(object):
                     results['position_modify'] = False
                     results['position_close'] = False
                     results['positions_to_close'] = []
-                elif stack_info[2] == 'SELL':
+                elif stack_info[3] == 'SELL':
                     results['order_entry'] = True
                     results['side'] = 'SELL'
                     results['take_profit'] = False
@@ -144,8 +148,6 @@ class Backtest(object):
 
                 signal = dataframe.iloc[0][-1]
 
-                print(dataframe)
-
                 dataframe = dataframe.drop(labels=dataframe.index[0], axis=0, 
                 inplace=False)
 
@@ -174,21 +176,37 @@ class Backtest(object):
     def processing_backtest_info_from_setup(self) -> None:
         self.__backtest_log_report_infos = pd.DataFrame.from_dict(self.__backtest_log_report_infos[-1]['position_closed'])
 
-        total_op = len(self.__backtest_log_report_infos)
         print(self.__backtest_log_report_infos)
 
-        # qtd_profit = self.__backtest_log_report_infos.loc['result'] > 0
-        # qtd_loss = self.__backtest_log_report_infos.loc['result'] < 0
-        
-        # print(f'Total de Lucro Bruto: {round(qtd_profit.sum(), 2)}')
-        # print(f'Total de trades lucrativos: {len(qtd_profit)}')
+        total_op = len(self.__backtest_log_report_infos)
 
-        # print(f'Total de Perda Bruto: {round(qtd_loss.sum(), 2)}')
-        # print(f'Total de trades prejudicial: {len(qtd_loss)}')
+        profit = []
+        loss = []
+
+        for price in self.__backtest_log_report_infos['result']:
+            if price > 0:
+                profit.append(price)
+            elif price < 0:
+                loss.append(price)
+
+        qtd_profit = len(profit)
+        qtd_loss = len(loss)
+
+        lucro_bruto = round(sum(profit), 2)
+        perda_bruta = round(sum(loss), 2)
+
+        print(f'Total de operações: {total_op}')
+        
+        print(f'Total de Lucro Bruto: R$ {lucro_bruto}')
+        print(f'Total de trades lucrativos: {qtd_profit}')
+
+        print(f'Total de Perda Bruto: R$ {perda_bruta}')
+        print(f'Total de trades prejudicial: {qtd_loss}')
+
+        print(f'Lucro Liquido total: R$ {lucro_bruto + perda_bruta}')
         
 
     def export_backtest_log_report(self, results: dict) -> print:
-        print(results)
         self.__backtest_log_report_infos.append(results)
         self.__log_list.append(results)
 
