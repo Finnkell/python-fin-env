@@ -1,4 +1,6 @@
-# description: Estratégia de algotrading utilizando o Money Flow Index (MFI)
+'''
+TODO: Refatoração de código
+'''
 
 import warnings
 from datetime import datetime

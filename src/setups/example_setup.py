@@ -5,12 +5,12 @@ import random
 
 server = MetaTraderConnection()
 
-POINT = server.get_symbol_point('WIN$N')
-VALUE = server.get_symbol_info('WIN$N').trade_tick_value
+POINT = server.get_symbol_point(SYMBOL)
+VALUE = server.get_symbol_info(SYMBOL).trade_tick_value
 
 
-class CrossMMSetupWIN(Setup):
-    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
+class NomeSetup(Setup):
+    def __init__(self, symbol='', params='Parametros do Setup'):
         super().__init__()
         self.__dataframe = None
 
@@ -25,6 +25,10 @@ class CrossMMSetupWIN(Setup):
                 'type': type_ma_long, 
                 'applied_price': applied_price_ma_long
             },
+            'rsi': {
+                'period': period_rsi,
+                'applied_price': applied_price_rsi
+            }
         }
 
         self.__setup_params = {
@@ -50,7 +54,11 @@ class CrossMMSetupWIN(Setup):
         del self.__backtest_info
 
     def create_strategy(self, dataframe):
+        '''
+        >>> Função que cria toda a lógica da estratégia e salva a mesma dentro de um DataFrame
+        '''
 
+        #ADD: Exemplot de uma estratégia de cruzamento de média móvel
         if self.__indicator_params['short_ma']['type'] == 'SMA':
             dataframe['MMS'] = dataframe[self.__indicator_params['short_ma']['applied_price']].rolling(window=self.__indicator_params['short_ma']['period']).mean().fillna(0)
 
@@ -83,12 +91,16 @@ class CrossMMSetupWIN(Setup):
 
         return self.__dataframe
 
+    '''
+    >>> Funções que retornam os sinais de Compra e Venda a estratégia
+    '''
     def signal_buy(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if (mml_last > mms_last and mml_previous < mms_previous) else False
     
     def signal_sell(self, mml_last: float, mms_last: float, mml_previous: float, mms_previous: float) -> bool:
         return True if mml_last < mms_last and mml_previous > mms_previous else False
 
+################################################################
     '''
     >>> Override functions
     '''

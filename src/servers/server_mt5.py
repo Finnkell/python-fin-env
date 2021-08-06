@@ -26,7 +26,6 @@ timeframes = {
 
 
 class MetaTraderConnection():
-    
     def __init__(self):
         if not mt5.initialize():
             mt5.shutdown()
@@ -34,27 +33,27 @@ class MetaTraderConnection():
             self.version = mt5.version()
             print(f'Connect Sucessfully {self.version}')
    
-        self.position = None     
-        self.order = None
+        self.__position = None
+        self.__order = None
 
-        self.by_request = None
-        self.by_result = None
+        self.__by_request = None
+        self.__by_result = None
 
         self.magic_number = 0
 
-        self.trade_history = {}
+        self.__trade_history = {}
 
     def __del__(self):
         mt5.shutdown()
         print(f'Disconnected from {self.version}')
 
         del self.version
-        del self.position
-        del self.order
-        del self.by_request
+        del self.__position
+        del self.__order
+        del self.__by_request
         del self.bt_result
         del self.magic_number
-        del self.trade_history
+        del self.__trade_history
 
     def __str__(self):
         return f'MetaTrader Connection v. {self.version}'
@@ -93,53 +92,72 @@ class MetaTraderConnection():
 
     def get_positions_total(self) -> int:
         return mt5.positions_total()
-
+    
     def get_symbol_info(self, symbol: str=None) -> 'DataFrame':
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol) 
 
-    def get_symbol_point(self, symbol: str=None) -> float:
+    def get_symbol_info_trade_tick_size(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).trade_tick_size
 
-    def get_symbol_last_high(self, symbol: str=None) -> float:
+    def get_symbol_info_trade_tick_value(self, symbol: str=None) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).trade_tick_value
+
+    def get_symbol_info_trade_tick_profit(self, symbol: str) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).trade_tick_profit
+
+    def get_symbol_info_trade_tick_loss(self, symbol: str) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).trade_tick_loss
+
+    def get_symbol_info_last_high(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).lasthigh
 
-    def get_symbol_last_low(self, symbol: str=None) -> float:
+    def get_symbol_info_last_low(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).lastlow
 
-
-    def get_symbol_info_tick(self, symbol: str=None) -> 'DataFrame':
+    def get_symbol_info_bid(self, symobl: str=None) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info_tick(symbol)
+        return mt5.symbol_info(symbol).bid
 
-    def get_symbol_bid(self, symbol: str=None) -> float:
+    def get_symbol_info_bid_high(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info_tick(symbol).bid
+        return mt5.symbol_info(symbol).bidhigh
 
-    def get_symbol_ask(self, symbol: str=None) -> float:
+    def get_symbol_info_bid_low(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info_tick(symbol).ask
+        return mt5.symbol_info(symbol).bidlow
 
-    def get_symbol_volume(self, symbol: str=None) -> float:
+    def get_symbol_info_ask(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info_tick(symbol).volume
+        return mt5.symbol_info(symbol).ask
 
-    def get_symbol_last_price(self, symbol: str=None) -> float:
+    def get_symbol_info_bid_high(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info_tick(symbol).last
+        return mt5.symbol_info(symbol).askhigh
+
+    def get_symbol_info_bid_low(self, symbol: str) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).asklow
+
+    def get_symbol_info_volume(self, symbol: str) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).volume
 
 
     def get_trade_from_history(self, ticket: str=None) -> dict:
         if ticket == None:
-            return self.trade_history
-        elif not self.trade_history[ticket]:
+            return self.__trade_history
+        elif not self.__trade_history[ticket]:
             print(f'{ticket} not listed on orders history')
             return None
         
-        return self.trade_history[ticket]
+        return self.__trade_history[ticket]
 
     def get_orders_history(self, datetime_start: str, datetime_end: str, symbol: str=None) -> 'DataFrame':
         if symbol == None:
@@ -154,28 +172,23 @@ class MetaTraderConnection():
         return mt5.history_deals_get(datetime_end, datetime_start, symbol=symbol)
 
     def get_last_trade(self) -> 'OrderSendResult':
-        if self.by_result == None:
+        if self.__by_result == None:
             print('Don\'t have any trade')
             return None
         
-        return self.by_result
+        return self.__by_result
 
 
     def to_string_orders(self) -> str:
         print(f'Orders = {self.last_order}')
 
     def to_string_positions(self) -> str:
-        print(f'Positions = {self.position}')
+        print(f'Positions = {self.__position}')
 
 
-    def set_magic_number(self, number_magic: int=1234) -> None:
+    def set_magic_number(self, number_magic: int=1233) -> None:
         self.magic_number = number_magic
-
-    def get_symbol(self, symbol: str) -> str:
-        selected = mt5.symbol_select(symbol)
-
-        if selected == None:
-            return None
+    
     
     def buy(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
@@ -201,10 +214,10 @@ class MetaTraderConnection():
 
         result = mt5.order_send(request)
 
-        self.by_request = request
-        self.by_result = result
+        self.__by_request = request
+        self.__by_result = result
 
-        self.trade_history[result.order] = (request, result)
+        self.__trade_history[result.order] = (request, result)
 
         return result
 
@@ -232,12 +245,13 @@ class MetaTraderConnection():
 
         result = mt5.order_send(request)
 
-        self.by_request = request
-        self.by_result = result
+        self.__by_request = request
+        self.__by_result = result
 
-        self.trade_history[result.order] = (request, result)
+        self.__trade_history[result.order] = (request, result)
 
         return result
+
 
     def sell(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
@@ -262,10 +276,10 @@ class MetaTraderConnection():
 
         result = mt5.order_send(request)
 
-        self.by_request = request
-        self.by_result = result
+        self.__by_request = request
+        self.__by_result = result
 
-        self.trade_history[result.order] = (request, result)
+        self.__trade_history[result.order] = (request, result)
 
         return result
 
@@ -293,12 +307,13 @@ class MetaTraderConnection():
 
         result = mt5.order_send(request)
 
-        self.by_request = request
-        self.by_result = result
+        self.__by_request = request
+        self.__by_result = result
 
-        self.trade_history[result.order] = (request, result)
+        self.__trade_history[result.order] = (request, result)
 
         return result
+    
     
     def order_modify(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
@@ -323,10 +338,10 @@ class MetaTraderConnection():
         if result == None:
             return None
 
-        self.by_request = request
-        self.by_result = result
+        self.__by_request = request
+        self.__by_result = result
 
-        self.trade_history[result.order] = (request, result)
+        self.__trade_history[result.order] = (request, result)
 
         return result
 

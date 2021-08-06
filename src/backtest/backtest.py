@@ -157,7 +157,10 @@ class Backtest(object):
                 stack.remove(time)
 
             if len(dataframe) == 0:
-                    break
+                break
+
+            if len(dataframe) == 1:
+                signal = 'CLOSE_ALL'
 
             # print(f'{len(dataframe)} from {tam*4}')
 
