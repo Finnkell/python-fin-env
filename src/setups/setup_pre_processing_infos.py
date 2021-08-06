@@ -5,8 +5,6 @@ class SetupPreProcessingInfos(object):
         self.__start_date = None
         self.__end_data = None
 
-        # self.__result = None
-
     def __del__(self):
         del self.__setup
 
@@ -30,18 +28,6 @@ class SetupPreProcessingInfos(object):
 
     def get_setup_position_side(self) -> str:
         return self.__setup.get_position_side()
-
-    def get_is_take_profit(self) -> bool:
-        return self.__is_take_profit
-    
-    def get_is_stop_loss(self) -> bool:
-        return self.__is_stop_loss
-
-    def get_is_position_modify(self) -> bool:
-        return self.__is_position_modify
-
-    def get_is_position_close(self) -> bool:
-        return self.__is_position_closed
 
     def have_positions(self) -> bool:
         return self.__setup.get_any_position()

@@ -15,13 +15,14 @@ from src.backtest.backtest import Backtest
 
 import requests
 
-dataframe = pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=',')
+dataframe = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
 
 start = time.perf_counter()
 
 setup = CrossMMSetupWIN()
+backtest = Backtest(setup, dataframe)
 
-t1 = threading.Thread(target=server_run())
+t1 = threading.Thread(target=backtest.run_backtest())
 
 t1.start()
 
