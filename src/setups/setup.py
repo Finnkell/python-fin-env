@@ -8,7 +8,7 @@ class Setup(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_indicators_params(self, position: Position()) -> dict:
+    def get_indicators_params(self) -> dict:
         pass
 
     @abstractmethod

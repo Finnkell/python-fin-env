@@ -51,7 +51,6 @@ class MetaTraderConnection():
         del self.__position
         del self.__order
         del self.__by_request
-        del self.bt_result
         del self.magic_number
         del self.__trade_history
 

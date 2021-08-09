@@ -19,7 +19,7 @@ dataframe = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
 
 start = time.perf_counter()
 
-setup = CrossMMSetupWIN()
+setup = CrossMMSetupWIN('WIN$N')
 backtest = Backtest(setup, dataframe)
 
 t1 = threading.Thread(target=backtest.run_backtest())

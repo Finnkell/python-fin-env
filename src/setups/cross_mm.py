@@ -5,12 +5,8 @@ import random
 
 server = MetaTraderConnection()
 
-POINT = server.get_symbol_point('WIN$N')
-VALUE = server.get_symbol_info('WIN$N').trade_tick_value
-
-
 class CrossMMSetupWIN(Setup):
-    def __init__(self, period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
+    def __init__(self, symbol: str='', period_ma_short=8, applied_price_ma_short='Close', type_ma_short='SMA', period_ma_long=20, applied_price_ma_long='Close', type_ma_long='SMA'):
         super().__init__()
         self.__dataframe = None
 
@@ -40,6 +36,11 @@ class CrossMMSetupWIN(Setup):
         self.__backtest_info = {
             'order': [],
             'position_closed': [],
+        }
+
+        self.__setup_symbol_info = {
+            'symbol': symbol,
+            'symbol_info': server.get_symbol_info(symbol)
         }
 
     def __del__(self):
@@ -199,7 +200,7 @@ class CrossMMSetupWIN(Setup):
                 'tp': self.get_position_take_profit(ticket),
                 'sl': self.get_position_stop_loss(ticket),
                 'comment': comment,
-                'result': ((result/POINT)*VALUE)*self.get_position_volume(ticket)
+                'result': ((result/self.__setup_symbol_info['symbol_info'].trade_tick_size)*self.__setup_symbol_info['symbol_info'].trade_tick_value)*self.get_position_volume(ticket)
             })
 
         self.__backtest_info['order'] = list(filter(lambda order: order['ticket'] != ticket, self.__backtest_info['order']))
