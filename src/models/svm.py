@@ -29,47 +29,34 @@ class SVRModel(Model):
     def __del__(self):
         pass
 
-    def example_model_boston(self, validation_size=0.2):
-        X, y = datasets.load_boston(return_X_y=True)
 
-        train_size = int(len(X) * (1 - validation_size))
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
-
-        regression = make_pipeline(StandardScaler(), SVR())
-
-        self.model = regression
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        self.y_pred = predicted
-
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Boston Dataset')
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
 
-    def example_model_diabetes(self, validation_size=0.2):
-        X, y = datasets.load_diabetes(return_X_y=True)
+        self.model = make_pipeline(
+            StandardScaler(), 
+            SVR(
+                C=C,
+                kernel=kernel,
+                degree=degree,
+                gamma=gamma,
+                coef0=coef0,
+                tol=tol,
+                epsilon=epsilon,
+                shrinking=shrinking,
+                cache_size=cache_size,
+                verbose=verbose,
+                max_iter=max_iter
+            )
+        )
 
-        train_size = int(len(X) * (1 - validation_size))
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(), SVR())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
-
-    def get_data(self, dataframe):
-        pass
-
-    def create_model(self):
-        pass
+    def get_data(self, dataframe: pd.DataFrame()=None) -> None:
+        if dataframe == None:
+            raise ValueError
 
     def example(self):
         pass
@@ -136,6 +123,9 @@ class NuSVRModel(Model):
     def create_model(self):
         pass
 
+    def get_data(self):
+        pass
+
     def example(self):
         pass
 
@@ -147,9 +137,10 @@ class NuSVRModel(Model):
 
     def evaluate_model(self):
         pass
-
+    
     def model_summary(self):
         pass
+
 
     def save_model(self):
         model_filename = 'src/api/models/NuSVR.pkl'
@@ -199,6 +190,9 @@ class LinearSVRModel(Model):
     def create_model(self):
         pass
 
+    def get_data(self):
+        pass
+
     def example(self):
         pass
 
@@ -210,7 +204,7 @@ class LinearSVRModel(Model):
 
     def evaluate_model(self):
         pass
-
+    
     def model_summary(self):
         pass
 
@@ -239,9 +233,7 @@ class SVCModel(Model):
     def __del__(self):
         pass
 
-    def get_data(self):
-        pass
-    
+
     def example_model_ohlc_win(self, validation_size=0.2):
         database = 'WIN$N_M15'
 
@@ -310,6 +302,9 @@ class SVCModel(Model):
         print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
 
     def create_model(self):
+        pass
+
+    def get_data(self):
         pass
 
     def example(self):
@@ -398,6 +393,9 @@ class NuSVCModel(Model):
     def create_model(self):
         pass
 
+    def get_data(self):
+        pass
+
     def example(self):
         pass
 
@@ -409,7 +407,7 @@ class NuSVCModel(Model):
 
     def evaluate_model(self):
         pass
-
+    
     def model_summary(self):
         pass
 
@@ -460,6 +458,9 @@ class LinearSVCModel(Model):
         pass
 
     def create_model(self):
+        pass
+
+    def get_data(self):
         pass
 
     def example(self):
