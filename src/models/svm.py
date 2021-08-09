@@ -65,6 +65,9 @@ class SVRModel(Model):
 
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
 
+    def get_data(self, dataframe):
+        pass
+
     def create_model(self):
         pass
 
@@ -236,7 +239,9 @@ class SVCModel(Model):
     def __del__(self):
         pass
 
-
+    def get_data(self):
+        pass
+    
     def example_model_ohlc_win(self, validation_size=0.2):
         database = 'WIN$N_M15'
 

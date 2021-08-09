@@ -13,21 +13,26 @@ from src.setups.cross_mm import CrossMMSetupWIN
 from src.models.decision_tree import DecisionTreeClassifierModel
 from src.backtest.backtest import Backtest
 
-import requests
+server = MetaTraderConnection()
 
-dataframe = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
+while True:
+    print(f"Last: {server.get_symbol_info_last(symbol='WINQ21')}")
 
-start = time.perf_counter()
+# import requests
 
-setup = CrossMMSetupWIN('WIN$N')
-backtest = Backtest(setup, dataframe)
+# dataframe = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
 
-t1 = threading.Thread(target=backtest.run_backtest())
+# start = time.perf_counter()
 
-t1.start()
+# setup = CrossMMSetupWIN('WIN$N')
+# backtest = Backtest(setup, dataframe)
 
-t1.join()
+# t1 = threading.Thread(target=backtest.run_backtest())
 
-finish = time.perf_counter()
+# t1.start()
 
-print(f'Finished in {round(finish-start, 2)} second(s)')
+# t1.join()
+
+# finish = time.perf_counter()
+
+# print(f'Finished in {round(finish-start, 2)} second(s)')

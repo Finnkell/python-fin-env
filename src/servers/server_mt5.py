@@ -96,6 +96,10 @@ class MetaTraderConnection():
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol) 
 
+    def get_symbol_info_last(self, symbol: str=None) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).last
+
     def get_symbol_info_trade_tick_size(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).trade_tick_size
@@ -416,9 +420,9 @@ class MetaTraderConnection():
 
     def verify_symbol(self, symbol: str) -> 'NameError or ValueError':
         if symbol == None:
-            raise ValueError
+            return None
 
         selected = mt5.symbol_select(symbol)
 
         if not selected:
-            raise NameError
+            return None
