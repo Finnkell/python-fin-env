@@ -28,7 +28,7 @@ server = MetaTraderConnection()
 
 start = time.perf_counter()
 
-setup = CrossMMSetupWIN('WIN$N')
+setup = CrossMMSetupWIN(symbol='WIN$N', period_ma_short=2, period_ma_long=3)
 
 last_time = 0
 
@@ -37,15 +37,13 @@ def new_bar():
 
     time_now = datetime.now()
 
-    # print(f'time_now: {time_now}')
-    # print(f'last_time: {last_time}')
 
     if last_time == 0:
         last_time = time_now
 
         return False
     
-    if time_now.min != last_time.min:
+    if time_now.minute != last_time.minute:
         last_time = time_now
 
         return True
@@ -55,23 +53,34 @@ def new_bar():
 
 
 while True:
-    # if new_bar():
-    rates = server.get_symbol_ohlc(symbol='WINQ21', timeframe='TIMEFRAME_M1', count=50)
-    rates_frame = pd.DataFrame(rates)
-    rates_frame['time']=pd.to_datetime(rates_frame['time'], unit='s')
+    if new_bar():
+        rates = server.get_symbol_ohlc(symbol='WINQ21', timeframe='TIMEFRAME_M1', count=50)
+        rates_frame = pd.DataFrame(rates)
+        rates_frame['time'] = pd.to_datetime(rates_frame['time'], unit='s')
 
-    rates_frame = rates_frame.rename(columns = {'time': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close'})
+        rates_frame = rates_frame.rename(columns = {'time': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close'})
 
-    setup_dataframe = setup.create_strategy(dataframe=rates_frame)
-    print(f"Setup: \n {setup_dataframe}")
+        setup_dataframe = setup.create_strategy(dataframe=rates_frame)
+        # print(f"\nSetup: \n{setup_dataframe}")
 
-    if server.get_positions(symbol='WINQ21') != ():
-        if setup_dataframe.iloc[-1, 'Signal_Type'] == 'BUY':
-            server.buy(volume=1.0, symbol='WINQ21', price=server.get_symbol_info_last(symbol='WINQ21'))
-        elif setup_dataframe.iloc[-1, 'Signal_Type'] == 'SELL':
-            server.sell(volume=1.0, symbol='WINQ21', price=server.get_symbol_info_last(symbol='WINQ21'))
-        else:
-            print('Hold')
+        # print(f"Signal Type: {setup_dataframe['Signal_Type'].iloc[-1]}")
+        # print(f"Position: {server.get_positions(symbol='WINQ21')}")
+
+        if server.get_positions(symbol='WINQ21') == ():
+            if setup_dataframe['Signal_Type'].iloc[-1] == 'BUY':
+                print(f"MM 2 PREV: {setup_dataframe['MMS'].iloc[-2]} | MM 3 PREV: {setup_dataframe['MML'].iloc[-2]}")
+                print(f"MM 2 AGORA: {setup_dataframe['MMS'].iloc[-1]} | MM 3 AGORA: {setup_dataframe['MML'].iloc[-1]}")
+
+                result = server.buy(volume=1.0, symbol='WINQ21', price=server.get_symbol_info_last(symbol='WINQ21'), sl=200, tp=200)
+                print(f"\nResult: {result}")
+            elif setup_dataframe['Signal_Type'].iloc[-1] == 'SELL':
+                print(f"MM 2 PREV: {setup_dataframe['MMS'].iloc[-2]} | MM 3 PREV: {setup_dataframe['MML'].iloc[-2]}")
+                print(f"MM 2 AGORA: {setup_dataframe['MMS'].iloc[-1]} | MM 3 AGORA: {setup_dataframe['MML'].iloc[-1]}")
+
+                result = server.sell(volume=1.0, symbol='WINQ21', price=server.get_symbol_info_last(symbol='WINQ21'), sl=200, tp=200)
+                print(f"\nResult: {result}")
+            else:
+                print('Hold')
 
 
 # backtest = Backtest(setup, dataframe)

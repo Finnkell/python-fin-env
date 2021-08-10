@@ -24,9 +24,9 @@ class CrossMMSetupWIN(Setup):
         }
 
         self.__setup_params = {
-            'volume': 1.0,
-            'tp': 100.0,
-            'sl': 100.0,
+            'volume': float(1.0),
+            'tp': float(100.0),
+            'sl': float(100.0),
             'position_modify': None,
             'position_close': None,
             'breakeven': None,
@@ -52,6 +52,9 @@ class CrossMMSetupWIN(Setup):
 
     def create_strategy(self, dataframe):
 
+        if not {"Date", "Open", "High", "Low", "Close"}.issubset(dataframe.columns):
+            return None
+
         if self.__indicator_params['short_ma']['type'] == 'SMA':
             dataframe['MMS'] = dataframe[self.__indicator_params['short_ma']['applied_price']].rolling(window=self.__indicator_params['short_ma']['period']).mean().fillna(0)
 
@@ -67,7 +70,6 @@ class CrossMMSetupWIN(Setup):
         signal = []
         signal.append(None)
         signal.append(None)
-
         for i in range(2, len(dataframe['Close'])):
             if self.signal_buy(dataframe['MML'][i - 2], dataframe['MMS'][i - 2], dataframe['MML'][i - 1], dataframe['MMS'][i - 1]):
                 signal.append(True)

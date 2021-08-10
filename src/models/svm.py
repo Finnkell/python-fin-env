@@ -89,7 +89,7 @@ class NuSVRModel(Model):
     def __del__(self):
         pass
 
-    def example_model_boston(self, validation_size=0.2):
+    def example_model_boston(self, validation_size: float=0.2):
         X, y = datasets.load_boston(return_X_y=True)
 
         train_size = int(len(X) * (1 - validation_size))
@@ -105,7 +105,7 @@ class NuSVRModel(Model):
         print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Boston Dataset')
 
 
-    def example_model_diabetes(self, validation_size=0.2):
+    def example_model_diabetes(self, validation_size: float=0.2):
         X, y = datasets.load_diabetes(return_X_y=True)
 
         train_size = int(len(X) * (1 - validation_size))
