@@ -24,7 +24,6 @@ timeframes = {
     'TIMEFRAME_MN1': mt5.TIMEFRAME_MN1
 }
 
-
 class MetaTraderConnection():
     def __init__(self):
         if not mt5.initialize():
@@ -61,9 +60,13 @@ class MetaTraderConnection():
     def get_timeframe(self, timeframe: str) -> 'mt5.TIMEFRAME':
         return timeframes[timeframe] if timeframes[timeframe] else None
 
-    def get_symbol_ohlc(self, symbol: str, timeframe: str, date: str=0, count: int=1) -> 'DataFrame':
+    def get_symbol_ohlc(self, symbol: str, timeframe: str, date: int=0, count: int=1) -> 'DataFrame':
         self.verify_symbol(symbol)
         timeframe = self.get_timeframe(timeframe)
+        
+        if timeframe == None:
+            return None
+
         return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
     def get_orders(self, symbol: str=None, ticket: str=None, group: str=None) -> 'DataFrame':
@@ -96,6 +99,10 @@ class MetaTraderConnection():
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol) 
 
+    def get_symbol_info_last(self, symbol: str=None) -> float:
+        self.verify_symbol(symbol)
+        return mt5.symbol_info(symbol).last
+
     def get_symbol_info_trade_tick_size(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).trade_tick_size
@@ -106,11 +113,11 @@ class MetaTraderConnection():
 
     def get_symbol_info_trade_tick_profit(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info(symbol).trade_tick_profit
+        return mt5.symbol_info(symbol).trade_tick_value_profit
 
     def get_symbol_info_trade_tick_loss(self, symbol: str) -> float:
         self.verify_symbol(symbol)
-        return mt5.symbol_info(symbol).trade_tick_loss
+        return mt5.symbol_info(symbol).trade_tick_value_loss
 
     def get_symbol_info_last_high(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
@@ -120,7 +127,7 @@ class MetaTraderConnection():
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).lastlow
 
-    def get_symbol_info_bid(self, symobl: str=None) -> float:
+    def get_symbol_info_bid(self, symbol: str=None) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).bid
 
@@ -136,18 +143,17 @@ class MetaTraderConnection():
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).ask
 
-    def get_symbol_info_bid_high(self, symbol: str) -> float:
+    def get_symbol_info_ask_high(self, symbol: str) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).askhigh
 
-    def get_symbol_info_bid_low(self, symbol: str) -> float:
+    def get_symbol_info_ask_low(self, symbol: str) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).asklow
 
     def get_symbol_info_volume(self, symbol: str) -> float:
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol).volume
-
 
     def get_trade_from_history(self, ticket: str=None) -> dict:
         if ticket == None:
@@ -177,20 +183,19 @@ class MetaTraderConnection():
         
         return self.__by_result
 
-
     def to_string_orders(self) -> str:
         print(f'Orders = {self.last_order}')
 
     def to_string_positions(self) -> str:
         print(f'Positions = {self.__position}')
 
-
     def set_magic_number(self, number_magic: int=1233) -> None:
         self.magic_number = number_magic
     
-    
     def buy(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
+
+        point = self.get_symbol_info_trade_tick_value(symbol=symbol)/self.get_symbol_info_trade_tick_size(symbol=symbol)
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -198,8 +203,8 @@ class MetaTraderConnection():
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY,
             "price": price,
-            "sl": price - sl*self.get_symbol_point(symbol=symbol),
-            "tp": price + tp*self.get_symbol_point(symbol=symbol),
+            "sl": price - sl*point if sl != 0.0 else 0.0,
+            "tp": price + tp*point if tp != 0.0 else 0.0,
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
@@ -222,6 +227,8 @@ class MetaTraderConnection():
 
     def buy_limit(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
+
+        point = self.get_symbol_info_trade_tick_value(symbol=symbol)/self.get_symbol_info_trade_tick_size(symbol=symbol)
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -229,8 +236,8 @@ class MetaTraderConnection():
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_BUY_LIMIT,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price - sl*point,
+            "tp": price + tp*point,
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
@@ -251,9 +258,10 @@ class MetaTraderConnection():
 
         return result
 
-
     def sell(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
+
+        point = self.get_symbol_info_trade_tick_value(symbol=symbol)/self.get_symbol_info_trade_tick_size(symbol=symbol)
         
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -261,8 +269,8 @@ class MetaTraderConnection():
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL,
             "price": price,
-            "sl": price + sl*self.get_symbol_point(symbol=symbol),
-            "tp": price - tp*self.get_symbol_point(symbol=symbol),
+            "sl": price + sl*point,
+            "tp": price - tp*point,
             "magic": self.magic_number,
             "deviation": deviation,
             "comment": comment,
@@ -285,6 +293,8 @@ class MetaTraderConnection():
     def sell_limit(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, comment: str='=0') -> 'OrderSendResult':
         self.verify_symbol(symbol)
 
+        point = self.get_symbol_info_trade_tick_value(symbol=symbol)/self.get_symbol_info_trade_tick_size(symbol=symbol)
+
         request = {
             "action": mt5.TRADE_ACTION_PENDING,
             "symbol": symbol,
@@ -293,8 +303,8 @@ class MetaTraderConnection():
             "type": mt5.ORDER_TYPE_SELL_LIMIT,
             "stoplimit": 0.0,
             "price": price,
-            "sl": sl,
-            "tp": tp,
+            "sl": price + sl*point,
+            "tp": price - tp*point,
             "type_time": mt5.ORDER_TIME_GTC,
             "expiration": 0,
             "deviation": 0,
@@ -312,7 +322,6 @@ class MetaTraderConnection():
         self.__trade_history[result.order] = (request, result)
 
         return result
-    
     
     def order_modify(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
@@ -344,7 +353,6 @@ class MetaTraderConnection():
 
         return result
 
-
     def position_close(self, order_request: int) -> 'OrderSendResult':
         if self.get_positions(ticket=order_request.order) == None:
             return None
@@ -353,14 +361,14 @@ class MetaTraderConnection():
 
         if order_request.request.type == mt5.ORDER_TYPE_SELL:
             m_type = mt5.ORDER_TYPE_BUY
-            m_price = self.get_symbol_last_ask(symbol=order_request.request.symbol)
+            m_price = self.get_symbol_info_ask(symbol=order_request.request.symbol)
             m_position_id = order_request.order
             symbol = order_request.request.symbol
             magic = order_request.request.magic
 
         elif order_request.request.type == mt5.ORDER_TYPE_BUY:
             m_type = mt5.ORDER_TYPE_SELL
-            m_price = self.get_symbol_last_bid(symbol=order_request.request.symbol)
+            m_price = self.get_symbol_info_bid(symbol=order_request.request.symbol)
             m_position_id = order_request.order
             symbol = order_request.request.symbol
             magic = order_request.request.magic
@@ -386,8 +394,7 @@ class MetaTraderConnection():
 
         result = mt5.order_send(request)
         
-        return result
-    
+        return result   
 
     def position_close_by(self, order_request: int, order_request_by: int) -> 'OrderSendResult':
         if self.get_positions(ticket=order_request.order) == None:
@@ -416,9 +423,9 @@ class MetaTraderConnection():
 
     def verify_symbol(self, symbol: str) -> 'NameError or ValueError':
         if symbol == None:
-            raise ValueError
+            return None
 
         selected = mt5.symbol_select(symbol)
 
         if not selected:
-            raise NameError
+            return None

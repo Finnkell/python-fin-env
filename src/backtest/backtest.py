@@ -270,7 +270,7 @@ class Backtest(object):
         
         sns.scatterplot(data=self.__backtest_log_report_infos, x='start_date', y='result', ax=scatter)
 
-        plt.show()
+        # plt.show()
 
 
         self.__backtest_log_report_infos['saldo_max'] = self.__backtest_log_report_infos['saldo'].cummax()
@@ -288,7 +288,7 @@ class Backtest(object):
         print(self.__backtest_log_report_infos.tail(5))
 
         plt.legend()
-        plt.show()
+        # plt.show()
 
 
         

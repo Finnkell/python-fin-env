@@ -1,3 +1,5 @@
+import pytest
+
 from datetime import date, datetime, timezone
 from time import time
 import pytz
@@ -6,127 +8,290 @@ from src.servers.server_mt5 import MetaTraderConnection
 import unittest
 
 server = MetaTraderConnection()
+server.set_magic_number()
 
 tickets = []
 results = []
-server.set_magic_number()
 
-print('##########################################################')
+# global results
+symbol = 'WINQ21'
+group = None
+tickets = tickets
+results = results
 
-class ServerTest(unittest.TestCase):
-    def setUp(self):
+class MessageException(Exception):
+    def __init__(self, message: str):
+        self.msg = message
+        super().__init__(self.msg)
+
+class TestServer():
+
+    # @pytest.mark.parametrize('symbol', ['WIN121', 'AAAAAA', 12312, 'WIN$N'])
+    def test_select_symbol(self):
+        global symbol
+
+        try:
+            assert server.get_symbol_info(symbol) != None
+        except:
+            raise MessageException(message=f"Symbol {symbol} doesn\'t exist")
+
+    def test_get_symbol_ohlc(self):
+        global symbol
+
+        try:
+            assert server.get_symbol_ohlc(symbol=symbol, timeframe='TIMEFRAME_M1', count=10) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get OHLC data from {symbol}")
+
+    def test_get_symbol_info(self):
+        global symbol
+        
+        try:
+            assert server.get_symbol_info(symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} info")
+
+    def test_get_symbol_info_last(self):
+        global symbol
+
+        try:
+            assert server.get_symbol_info_last(symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} last price")
+
+    def test_get_symbol_bid(self):
+        global symbol
+
+        try:
+            assert server.get_symbol_info_bid(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} bid")
+
+    def test_get_symbol_bid_high(self):
+        global symbol
+
+        try:
+            assert server.get_symbol_info_bid_high(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} bid high")
+
+    def test_get_symbol_bid_low(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_bid_low(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} bid low")
+
+    def test_get_symbol_ask(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_ask(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} ask")
+
+    def test_get_symbol_ask_high(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_ask_high(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} ask_high")
+
+    def test_get_symbol_ask_low(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_ask_low(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} ask_low")
+
+    def test_get_symbol_volume(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_volume(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} volume")
+
+    def test_get_symbol_info_trade_tick_size(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_trade_tick_size(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} trade tick size")
+
+    def test_get_symbol_info_trade_tick_value(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_trade_tick_value(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} trade tick value")
+
+    def test_get_symbol_info_trade_tick_profit(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_trade_tick_profit(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} trade tick profit")
+
+    def test_get_symbol_info_trade_tick_loss(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_trade_tick_loss(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} trade tick loss")
+
+    def test_get_symbol_info_last_high(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_last_high(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} info last high")
+            
+    def test_get_symbol_info_last_low(self):
+        global symbol
+        try:
+            assert server.get_symbol_info_last_low(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} info last low")
+
+    def test_buy(self):
+        global symbol
         global tickets
         global results
 
-        self.symbol = 'WINQ21'
-        self.group = None
-        self.tickets = tickets
-        self.results = results
+        price = server.get_symbol_info_last(symbol=symbol)
 
-    def test_select_symbol(self):
-        self.assertIsNotNone(server.get_symbol_info(self.symbol), "You don\'t have {self.symbol} on your MetTrader Market Observer")
+        result = server.buy(volume=1, symbol=symbol, price=price, comment="Buy Test")
 
-    def test_get_symbol_ohlc(self):
-        self.assertIsNotNone(server.get_symbol_ohlc(symbol=self.symbol, timeframe=server.get_timeframe(timeframe='TIMEFRAME_M1'), count=10), "Couldn\'t get OHLC data from {self.symbol}")
+        results.append(result)
+        tickets.append(result.order)
 
-    def test_get_symbol_info_tick(self):
-        self.assertIsNotNone(server.get_symbol_last_info_tick(self.symbol), "Couldn\'t get {self.symbol} info tick")
-
-    def test_get_symbol_info(self):
-        self.assertIsNotNone(server.get_symbol_info(self.symbol), "Couldn\'t get {self.symbol} info")
-
-    def test_get_symbol_bid(self):
-        self.assertIsNotNone(server.get_symbol_bid(symbol=self.symbol), "Couldn\'t get {self.symbol} bid")
-
-    def test_get_symbol_ask(self):
-        self.assertIsNotNone(server.get_symbol_ask(symbol=self.symbol), "Couldn\'t get {self.symbol} ask")
-
-    def test_get_symbol_volume(self):
-        self.assertIsNotNone(server.get_symbol_volume(symbol=self.symbol), "Couldn\'t get {self.symbol} volume")
-
-    def test_get_symbol_last(self):
-        self.assertIsNotNone(server.get_symbol_last_price(symbol=self.symbol), "Couldn\'t get {self.symbol} last price")
-
-    def test_get_symbol_point(self):
-        self.assertIsNotNone(server.get_symbol_point(symbol=self.symbol), "Couldn\'t get {self.symbol} point")
-
-    def test_buy(self):
-        price = server.get_symbol_last_price(symbol=self.symbol)
-        point = server.get_symbol_point(symbol=self.symbol)
-
-        # sl = float(price - 10*point)
-        # tp = float(price + 5*point)
-
-        result = server.buy(volume=1, symbol=self.symbol, price=price, comment="Buy Test")
-
-        self.results.append(result)
-        self.tickets.append(result.order)
-
-        self.assertIsNotNone(result, "Couldn\'t put an buy order at {self.symbol}")
+        try:
+            assert result != None
+        except:
+            raise MessageException(message=f"Couldn\'t put an buy order at {symbol}")
 
         if result != None:
-            self.tickets.append( result.order )
+            tickets.append( result.order )
 
     def test_sell(self):
-        price = server.get_symbol_last_price(symbol=self.symbol)
-        point = server.get_symbol_point(symbol=self.symbol)
-        
-        # sl = float(price + 10*point)
-        # tp = float(price - 5*point)
+        global symbol
+        global tickets
+        global results
 
-        result = server.sell(volume=1, symbol=self.symbol, price=price, comment="Sell Test")
+        price = server.get_symbol_info_last(symbol=symbol)
 
-        self.results.append(result)
-        self.tickets.append(result.order)
+        result = server.sell(volume=1, symbol=symbol, price=price, comment="Sell Test")
 
-        self.assertIsNotNone(result, "Couldn\'t put an sell order at {self.symbol}")
+        results.append(result)
+        tickets.append(result.order)
+
+        try:
+            assert result != None
+        except:
+            raise MessageException(message=f"Couldn\'t put an sell order at {symbol}")
 
         if result != None:
-            self.tickets.append( result.order )
+            tickets.append( result.order )
 
     """" LIMIT ORDERS NEED TO BE IMPLEMENTED YET
 
     def test_buy_limit(self):
+        global symbol
         price = server.get_symbol_ask()
         point = server.get_symbol_point()
 
         sl = price - 10*point
         tp = price + 5*point
-        self.assertIsNotNone(server.buy_limit(1.0, self.symbol, sl, tp, 0, "Buy-Limit Test"), "Couldn\'t put an buy limit order at {self.symbol}")
+        try:
+            assert server.buy_limit(1.0, symbol, sl, tp, 0, "Buy-Limit Test"), "Couldn\'t put an buy limit order at {symbol}")
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} bid")
 
         if server.last_order != None:
             self.ticket.append( server.last_order )
 
     def test_sell_limit(self):
+        global symbol
         price = server.get_symbol_bid()
         point = server.get_symbol_point()
         
         sl = price + 10*point
         tp = price - 5*point
-        self.assertIsNotNone(server.sell_limit(1.0, self.symbol, sl, tp, 0, "Sell-Limit Test"), "Couldn\'t put an sell limit order at {self.symbol}")
+        try:
+            assert server.sell_limit(1.0, symbol, sl, tp, 0, "Sell-Limit Test"), "Couldn\'t put an sell limit order at {symbol}")
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} bid")
 
         if server.last_order != None:
             self.ticket.append( server.last_order )
 
     """
 
+    def test_get_orders_history(self):
+        global symbol
+        pass
+
+    def test_get_deals_history(self):
+        global symbol
+        pass
+
+    def test_get_last_trade(self):
+        global symbol
+        try:
+            assert server.get_last_trade() != None
+        except:
+            raise MessageException(message=f"Coudn\'t get last trade")
+
     # Group Orders Test need to be implemented 
     def test_get_orders(self):
-        result = server.get_orders(symbol=self.symbol)
+        global symbol
+        global tickets
 
-        self.assertIsNotNone(result, "Coudn\'t get order from {self.symbol} symbol")
-        self.assertIsNotNone(server.get_orders(ticket=result[-1].ticket), "Coudn\'t get order from {self.tickets[-1]} ticket")
+        result = server.get_orders(symbol=symbol)
+        print(f'result: {result}')
+
+        try:
+            assert result != None
+        except:
+            raise MessageException(message=f"Coudn\'t get order from {symbol} symbol")
+
+        print(f"Result tickets: {results[-1]}")
+
+        try:
+            assert server.get_orders(ticket=results[-1].order) != None
+        except:
+            raise MessageException(message=f"Coudn\'t get order from {results[-1].order} ticket")
 
     # Group Positions Test need to be implemented 
     def test_get_positions(self):
-        self.assertIsNotNone(server.get_positions(symbol=self.symbol), "Couldn\'t get {self.symbol} ticks")
-        self.assertIsNotNone(server.get_positions(ticket=self.tickets[0]), "Couldn\'t get {self.tickets[0]} ticket")
-        # self.assertIsNotNone(server.get_orders(group=self.group), "Couldn\'t get {self.group} ticks")
+        global symbol
+        global tickets
+
+        try:
+            assert server.get_positions(symbol=symbol) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {symbol} ticks")
+
+        try:
+            assert server.get_positions(ticket=tickets[0]) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get {self.tickets[0]} ticket")
 
     # POSITION
     def test_position_close(self):
-        result = server.buy(volume=1, symbol=self.symbol, price=server.get_symbol_last_price(symbol=self.symbol), comment="Buy Test")
-        self.assertIsNotNone(server.position_close(result), "Couldn\'t close {result} position")
+        global symbol
+        result = server.buy(volume=1, symbol=symbol, price=server.get_symbol_info_last(symbol=symbol), comment="Buy Test")
+
+        try:
+            assert server.position_close(result) != None
+        except:
+            raise MessageException(message=f"Couldn\'t get close {result} position")
 
     def test_position_close_by(self):
-        self.assertIsNotNone(server.position_close_by(self.results[0], self.results[-1]), "Couldn\'t close {self.results[0].order} ticket with {self.results[1].order} ticket")
+        global symbol
+        global tickets
+        global results
+
+        try:
+            assert server.position_close_by(results[0], results[-1]) != None
+        except:
+            raise MessageException(message=f"Couldn\'t close {results[0].order} ticket with {results[1].order} ticket")

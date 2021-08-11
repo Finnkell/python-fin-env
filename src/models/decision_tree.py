@@ -100,10 +100,17 @@ class DecisionTreeClassifierModel(Model):
 
         return summary
 
-    def save_model(self):
-        model_filename = 'src/api/models/DecisionTreeClassifier.pkl'
-        print(f'Saving model to {model_filename}...')
-        joblib.dump(self.__model, model_filename)
+    def save_model(self, flag='PROD'):
+
+        if flag == 'PROD':
+            model_filename = 'src/api/models/DecisionTreeClassifier.pkl'
+            print(f'Saving model to {model_filename}...')
+            joblib.dump(self.__model, model_filename)
+
+        if flag == 'TEST':
+            model_filename = 'src/api/models/test/DecisionTreeClassifier.pkl'
+            print(f'Saving model to {model_filename}...')
+            joblib.dump(self.__model, model_filename)
 
 class DecisionTreeRegressor(object):
     def __init__(self):

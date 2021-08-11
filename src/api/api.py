@@ -44,7 +44,6 @@ def page_500_error_handler(e):
 def app_root():
     return render_template(HOME_LABEL)
 
-#TODO: Validate query params
 @app.route('/svc_predict')
 def svc_predict():
 
@@ -184,6 +183,6 @@ def verify_field(params_field_value=[], params_field_names=[]):
 
             raise BadRequest(description=f'Cannot convert {field_value} to float')
 
-        features.append( field_value )
+        features.append(field_value)
 
     return features.reverse()
