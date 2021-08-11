@@ -56,8 +56,8 @@ class CrossMMSetupWIN(Setup):
 
     def create_strategy(self, dataframe: pd.DataFrame()):
 
-        # if not {'Date', 'Open', 'High', 'Low', 'Close'}.issubset(dataframe.columns):
-        #     raise ValueError
+        if not {'Date', 'Open', 'High', 'Low', 'Close'}.issubset(dataframe.columns):
+            raise ValueError
 
         if self.__indicator_params['short_ma']['type'] == 'SMA':
             dataframe['MMS'] = dataframe[self.__indicator_params['short_ma']['applied_price']].rolling(window=self.__indicator_params['short_ma']['period']).mean().fillna(0)
@@ -111,8 +111,8 @@ class CrossMMSetupWIN(Setup):
         return self.__setup_params['volume']
 
     def get_position_volume(self, ticket: int) -> float or None:
-        # if type(ticket) != int:
-        #     raise TypeError
+        if type(ticket) != int:
+            raise TypeError
             
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
@@ -121,8 +121,8 @@ class CrossMMSetupWIN(Setup):
         return None 
 
     def get_position_side(self, ticket: int) -> str or None:
-        # if type(ticket) != int:
-        #     raise TypeError
+        if type(ticket) != int:
+            raise TypeError
 
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
@@ -131,8 +131,8 @@ class CrossMMSetupWIN(Setup):
         return None
     
     def get_position_price(self, ticket: int) -> float or None:
-        # if type(ticket) != int:
-        #     raise TypeError
+        if type(ticket) != int:
+            raise TypeError
 
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
@@ -141,8 +141,8 @@ class CrossMMSetupWIN(Setup):
         return None
 
     def get_position_take_profit(self, ticket: int) -> float or None:
-        # if type(ticket) != int:
-        #     raise TypeError
+        if type(ticket) != int:
+            raise TypeError
         
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
@@ -151,8 +151,8 @@ class CrossMMSetupWIN(Setup):
         return None
 
     def get_position_stop_loss(self, ticket: int) -> float or None:
-        # if type(ticket) != int:
-        #     raise TypeError
+        if type(ticket) != int:
+            raise TypeError
 
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
@@ -179,8 +179,8 @@ class CrossMMSetupWIN(Setup):
         return self.__backtest_info
 
     def set_order_entry(self, date, side, price, volume, comment):
-        # if type(price) != float or type(volume) != float or type(side) != str or type(comment) != str or type(date) != str:
-        #     raise TypeError
+        if type(price) != float or type(volume) != float or type(side) != str or type(comment) != str or type(date) != str:
+            raise TypeError
 
         if side == 'BUY':
             tp = price + self.get_take_profit()
@@ -203,8 +203,8 @@ class CrossMMSetupWIN(Setup):
         )
 
     def set_position_close(self, ticket=None, start_date=None, end_date=None, side=None, price=None, position=None, comment=''):
-        # if  type(ticket) != int or type(start_date) != str or type(end_date) != str or type(side) != str or type(price) != float or type(position) != dict or type(comment) != str:
-        #     raise TypeError
+        if  type(ticket) != int or type(start_date) != str or type(end_date) != str or type(side) != str or type(price) != float or type(position) != dict or type(comment) != str:
+            raise TypeError
 
         if self.get_position_take_profit(ticket) == None or self.get_position_stop_loss(ticket) == None:
             return None
