@@ -57,7 +57,7 @@ class DecisionTreeClassifierModel(Model):
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=41)
 
-        self.__X_train, self.__X_test, self.__y_train, __self.y_test = X_train, X_test, y_train, y_test
+        self.__X_train, self.__X_test, self.__y_train, self.__y_test = X_train, X_test, y_train, y_test
 
 
     def example(self, dataframe):
@@ -71,13 +71,13 @@ class DecisionTreeClassifierModel(Model):
         print(self.model_sum)
 
     def fit_model(self, X_train, y_train):
-        return self.__model.fit(X_train, y_train)
+        self.__model.fit(X_train, y_train)
 
-    def predict(self, X_test):
-        return self.__model.predict(X_test)
+    def predict(self, X_pred):
+        self.__y_repd self.__model.predict(X_pred)
     
     def evaluate_model(self):
-        return
+        raise NotImplementedError
 
     def model_summary(self):
         DECISION_TREE_CLASSIFIER_ACCURACY_SCORE = accuracy_score(y_pred=self.__y_pred, y_true=self.__y_test)

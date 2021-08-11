@@ -1,18 +1,17 @@
 from src.setups.setup import Setup
-from src.servers.server_mt5 import MetaTraderConnection
 
 import random
 
-server = MetaTraderConnection()
-
-POINT = server.get_symbol_point(SYMBOL)
-VALUE = server.get_symbol_info(SYMBOL).trade_tick_value
-
-
 class NomeSetup(Setup):
-    def __init__(self, symbol='', params='Parametros do Setup'):
+    def __init__(self, connection=None, symbol: str='', period_ma_short=20, type_ma_short: str='SMA', applied_price_ma_short: str='Close', period_ma_long: int= 10, type_ma_long: str='EMA', applied_price_ma_long: str='Close', period_rsi: int= 14, applied_price_rsi: str='Close'):
         super().__init__()
         self.__dataframe = None
+
+        if connection == None:
+            print(f'You need to connect a server after using a Setup class')
+            raise ValueError
+        else:
+            self.__server = connection
 
         self.__indicator_params = {
             'short_ma': {
@@ -21,8 +20,8 @@ class NomeSetup(Setup):
                 'applied_price': applied_price_ma_short
             },
             'long_ma': {
-                'period': period_ma_long, 
-                'type': type_ma_long, 
+                'period': period_ma_long,
+                'type': type_ma_long,
                 'applied_price': applied_price_ma_long
             },
             'rsi': {
@@ -32,9 +31,9 @@ class NomeSetup(Setup):
         }
 
         self.__setup_params = {
-            'volume': 1.0,
-            'tp': 100.0,
-            'sl': 100.0,
+            'volume': float(1.0),
+            'tp': float(100.0),
+            'sl': float(100.0),
             'position_modify': None,
             'position_close': None,
             'breakeven': None,
@@ -44,6 +43,11 @@ class NomeSetup(Setup):
         self.__backtest_info = {
             'order': [],
             'position_closed': [],
+        }
+
+        self.__setup_symbol_info = {
+            'symbol': symbol,
+            'symbol_info': self.__server.get_symbol_info(symbol)
         }
 
     def __del__(self):
@@ -58,7 +62,10 @@ class NomeSetup(Setup):
         >>> Função que cria toda a lógica da estratégia e salva a mesma dentro de um DataFrame
         '''
 
-        #ADD: Exemplot de uma estratégia de cruzamento de média móvel
+        if not {'Date', 'Open', 'High', 'Low', 'Close'}.issubset(dataframe.columns):
+            raise ValueError
+
+        #ADD: Exemplo de uma estratégia de cruzamento de média móvel
         if self.__indicator_params['short_ma']['type'] == 'SMA':
             dataframe['MMS'] = dataframe[self.__indicator_params['short_ma']['applied_price']].rolling(window=self.__indicator_params['short_ma']['period']).mean().fillna(0)
 
@@ -117,6 +124,9 @@ class NomeSetup(Setup):
         return self.__setup_params['volume']
 
     def get_position_volume(self, ticket: int):
+        if type(ticket) != int:
+            raise TypeError
+
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
                 return position['volume']
@@ -124,6 +134,9 @@ class NomeSetup(Setup):
         return None 
 
     def get_position_side(self, ticket: int) -> str or None:
+        if type(ticket) != int:
+            raise TypeError
+
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
                 return position['side']
@@ -131,6 +144,9 @@ class NomeSetup(Setup):
         return None
     
     def get_position_price(self, ticket: int) -> None:
+        if type(ticket) != int:
+            raise TypeError
+
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
                 return position['price']
@@ -138,6 +154,9 @@ class NomeSetup(Setup):
         return None
 
     def get_position_take_profit(self, ticket: int) -> None:
+        if type(ticket) != int:
+            raise TypeError
+
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
                 return position['tp']
@@ -145,6 +164,9 @@ class NomeSetup(Setup):
         return None
 
     def get_position_stop_loss(self, ticket: int) -> None:
+        if type(ticket) != int:
+            raise TypeError
+
         for position in self.__backtest_info['order']:
             if position['ticket'] == ticket:
                 return position['sl']
@@ -170,6 +192,9 @@ class NomeSetup(Setup):
         return self.__backtest_info
 
     def set_order_entry(self, date, side, price, volume, comment):
+        if type(price) != float or type(volume) != float or type(side) != str or type(comment) != str or type(date) != str:
+            raise TypeError
+
         if side == 'BUY':
             tp = price + self.get_take_profit()
             sl = price - self.get_stop_loss()
@@ -191,6 +216,8 @@ class NomeSetup(Setup):
         )
 
     def set_position_close(self, ticket=None, start_date=None, end_date=None, side=None, price=None, position=None, comment=''):
+        if  type(ticket) != int or type(start_date) != str or type(end_date) != str or type(side) != str or type(price) != float or type(position) != dict or type(comment) != str:
+            raise TypeError
 
         if comment == 'Close by take profit' and side == 'BUY':
             result = self.get_position_take_profit(ticket) - price
@@ -211,7 +238,7 @@ class NomeSetup(Setup):
                 'tp': self.get_position_take_profit(ticket),
                 'sl': self.get_position_stop_loss(ticket),
                 'comment': comment,
-                'result': ((result/POINT)*VALUE)*self.get_position_volume(ticket)
+                'result': ((result/self.__setup_symbol_info['symbol_info'].trade_tick_size)*self.__setup_symbol_info['symbol_info'].trade_tick_value)*self.get_position_volume(ticket)
             })
 
         self.__backtest_info['order'] = list(filter(lambda order: order['ticket'] != ticket, self.__backtest_info['order']))

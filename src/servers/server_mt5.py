@@ -1,4 +1,5 @@
 import MetaTrader5 as mt5
+import pandas as pd
 
 timeframes = {
     'TIMEFRAME_M1': mt5.TIMEFRAME_M1,
@@ -25,12 +26,26 @@ timeframes = {
 }
 
 class MetaTraderConnection():
-    def __init__(self):
-        if not mt5.initialize():
+    def __init__(self, server: str="", login: int=0.0, password: str=""):
+        self.__server = server
+        self.__login = login
+        self.__password = password
+        self.__logged_in = None
+
+        if self.__logged_in:
+            print('Already connected')
+            pass
+        elif login == 0.0:
+            mt5.initialize()
+            self.__logged_in = True
+            self.__version = mt5.version()
+            print(f'Connect Sucessfully {self.__version}')
+        elif not mt5.initialize(server=self.__server, login=self.__login, password=self.__password):
             mt5.shutdown()
         else:
-            self.version = mt5.version()
-            print(f'Connect Sucessfully {self.version}')
+            self.__logged_in = True
+            self.__version = mt5.version()
+            print(f'Connect Sucessfully {self.__version}')
    
         self.__position = None
         self.__order = None
@@ -38,29 +53,31 @@ class MetaTraderConnection():
         self.__by_request = None
         self.__by_result = None
 
-        self.magic_number = 0
+        self.__magic_number = 0
 
         self.__trade_history = {}
 
     def __del__(self):
-        mt5.shutdown()
-        print(f'Disconnected from {self.version}')
+        print(f'Disconnected from {self.__version}')
 
-        del self.version
+        del self.__login
+        del self.__password
+        del self.__server
+        del self.__logged_in
+        del self.__version
         del self.__position
         del self.__order
         del self.__by_request
-        del self.magic_number
+        del self.__magic_number
         del self.__trade_history
 
     def __str__(self):
         return f'MetaTrader Connection v. {self.version}'
 
-
     def get_timeframe(self, timeframe: str) -> 'mt5.TIMEFRAME':
         return timeframes[timeframe] if timeframes[timeframe] else None
 
-    def get_symbol_ohlc(self, symbol: str, timeframe: str, date: int=0, count: int=1) -> 'DataFrame':
+    def get_symbol_ohlc(self, symbol: str, timeframe: str, date: int=0, count: int=1) -> pd.DataFrame():
         self.verify_symbol(symbol)
         timeframe = self.get_timeframe(timeframe)
         
@@ -69,7 +86,7 @@ class MetaTraderConnection():
 
         return mt5.copy_rates_from_pos(symbol, timeframe, date, count)
 
-    def get_orders(self, symbol: str=None, ticket: str=None, group: str=None) -> 'DataFrame':
+    def get_orders(self, symbol: str=None, ticket: str=None, group: str=None) -> pd.DataFrame():
         if symbol != None:
             return mt5.orders_get(symbol=symbol)
         elif ticket != None:
@@ -95,7 +112,7 @@ class MetaTraderConnection():
     def get_positions_total(self) -> int:
         return mt5.positions_total()
     
-    def get_symbol_info(self, symbol: str=None) -> 'DataFrame':
+    def get_symbol_info(self, symbol: str=None) -> pd.DataFrame():
         self.verify_symbol(symbol)
         return mt5.symbol_info(symbol) 
 
@@ -164,13 +181,13 @@ class MetaTraderConnection():
         
         return self.__trade_history[ticket]
 
-    def get_orders_history(self, datetime_start: str, datetime_end: str, symbol: str=None) -> 'DataFrame':
+    def get_orders_history(self, datetime_start: str, datetime_end: str, symbol: str=None) -> pd.DataFrame():
         if symbol == None:
             return mt5.history_orders_get(datetime_end, datetime_start, symbol=symbol)
 
         return mt5.history_orders_get(datetime_end, datetime_start, symbol=symbol)
 
-    def get_deals_history(self, datetime_start: str, datetime_end: str, symbol: str=None) -> 'DataFrame':
+    def get_deals_history(self, datetime_start: str, datetime_end: str, symbol: str=None) -> pd.DataFrame():
         if symbol == None:
             mt5.history_deals_get(datetime_end, datetime_start)
             
@@ -190,7 +207,7 @@ class MetaTraderConnection():
         print(f'Positions = {self.__position}')
 
     def set_magic_number(self, number_magic: int=1233) -> None:
-        self.magic_number = number_magic
+        self.__magic_number = number_magic
     
     def buy(self, volume: float, symbol: str, price: float, sl: float=0.0, tp: float=0.0, deviation: int=0, comment: str='') -> 'OrderSendResult':
         self.verify_symbol(symbol)
@@ -205,7 +222,7 @@ class MetaTraderConnection():
             "price": price,
             "sl": price - sl*point if sl != 0.0 else 0.0,
             "tp": price + tp*point if tp != 0.0 else 0.0,
-            "magic": self.magic_number,
+            "magic": self.__magic_number,
             "deviation": deviation,
             "comment": comment,
             "type_time": mt5.ORDER_TIME_GTC,
@@ -238,7 +255,7 @@ class MetaTraderConnection():
             "price": price,
             "sl": price - sl*point if sl != 0.0 else 0.0,
             "tp": price + tp*point if tp != 0.0 else 0.0,
-            "magic": self.magic_number,
+            "magic": self.__magic_number,
             "deviation": deviation,
             "comment": comment,
             "expiration": 0,
@@ -271,7 +288,7 @@ class MetaTraderConnection():
             "price": price,
             "sl": price + sl*point if sl != 0.0 else 0.0,
             "tp": price - tp*point if tp != 0.0 else 0.0,
-            "magic": self.magic_number,
+            "magic": self.__magic_number,
             "deviation": deviation,
             "comment": comment,
             "type_time": mt5.ORDER_TIME_DAY,
@@ -298,7 +315,7 @@ class MetaTraderConnection():
         request = {
             "action": mt5.TRADE_ACTION_PENDING,
             "symbol": symbol,
-            "magic": self.magic_number,
+            "magic": self.__magic_number,
             "volume": float(volume),
             "type": mt5.ORDER_TYPE_SELL_LIMIT,
             "stoplimit": 0.0,
@@ -333,7 +350,7 @@ class MetaTraderConnection():
             "price": price,
             "sl": sl,
             "tp": tp,
-            "magic": self.magic_number,
+            "magic": self.__magic_number,
             "deviation": deviation,
             "comment": comment,
             "expiration": 0,

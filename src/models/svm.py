@@ -18,16 +18,28 @@ import numpy as np
 class SVRModel(Model):
     def __init__(self):
         super().__init__()
-        self.model = None
+        self.__model = None
+        self.__model_sum = None
 
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
-        self.y_pred = None
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
+
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
+
+    def __str__(self):
+        print(f'Support Vector Machine Regressor model: {self.__model}')
 
 
     def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
@@ -35,183 +47,158 @@ class SVRModel(Model):
         if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
             raise TypeError
 
-
-        self.model = make_pipeline(
-            StandardScaler(), 
-            SVR(
-                C=C,
-                kernel=kernel,
-                degree=degree,
-                gamma=gamma,
-                coef0=coef0,
-                tol=tol,
-                epsilon=epsilon,
-                shrinking=shrinking,
-                cache_size=cache_size,
-                verbose=verbose,
-                max_iter=max_iter
-            )
-        )
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
 
     def get_data(self, dataframe: pd.DataFrame()=None) -> None:
-        if dataframe == None:
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
             raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
 
     def model_summary(self):
         SVR_ACCURACY = accuracy_score(y_pred, y_test)
         SVR_R2SCORE = r2_score(y_pred, y_test)
-        return 
+        return {}
 
     def save_model(self):
         model_filename = 'src/api/models/SVR.pkl'
         print(f'Saving model to {model_filename}...')
-        joblib.dump(self.model, model_filename)
+        joblib.dump(self.__model, model_filename)
 
 
 class NuSVRModel(Model):
     def __init__(self):
         super().__init__()
-        pass
+        self.__model = None
+        self.__model_sum = None
+
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
 
-    def example_model_boston(self, validation_size: float=0.2):
-        X, y = datasets.load_boston(return_X_y=True)
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
 
-        train_size = int(len(X) * (1 - validation_size))
+    def __str__(self):
+        print(f'Nu Support Vector Machine Regressor model: {self.__model}')
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-        regression = make_pipeline(StandardScaler(), NuSVR())
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Boston Dataset')
-
-
-    def example_model_diabetes(self, validation_size: float=0.2):
-        X, y = datasets.load_diabetes(return_X_y=True)
-
-        train_size = int(len(X) * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(), NuSVR())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
-
-    def create_model(self):
-        pass
-
-    def get_data(self):
-        pass
+    def get_data(self, dataframe=None):
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
+            raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
     
     def model_summary(self):
-        pass
-
+        summary = {}
+        return summary
 
     def save_model(self):
         model_filename = 'src/api/models/NuSVR.pkl'
         print(f'Saving model to {model_filename}...')
-        joblib.dump(self.model, model_filename)
+        joblib.dump(self.__model, model_filename)
 
 
 class LinearSVRModel(Model):
     def __init__(self):
         super().__init__()
-        pass
+        self.__model = None
+        self.__model_sum = None
+
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
 
-    def example_model_boston(self, validation_size=0.2):
-        X, y = datasets.load_boston(return_X_y=True)
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
 
-        train_size = int(len(X) * (1 - validation_size))
+    def __str__(self):
+        print(f'Linear Support Vector Machine Regressor model: {self.__model}')
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-        regression = make_pipeline(StandardScaler(), LinearSVR())
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Boston Dataset')
-
-
-    def example_model_diabetes(self, validation_size=0.2):
-        X, y = datasets.load_diabetes(return_X_y=True)
-
-        train_size = int(len(X) * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(), LinearSVR())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'MSLE: {mean_squared_log_error(predicted, y_test)} Diabetes Dataset')
-
-    def create_model(self):
-        pass
-
-    def get_data(self):
-        pass
+    def get_data(self, dataframe=None):
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
+            raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
     
     def model_summary(self):
-        pass
+        summary = {}
+        return summary
 
     def save_model(self):
         model_filename = 'src/api/models/LinearSVR.pkl'
         print(f'Saving model to {model_filename}...')
-        joblib.dump(self.model, model_filename)
+        joblib.dump(self.__model, model_filename)
 
 
 '''
@@ -220,18 +207,28 @@ class LinearSVRModel(Model):
 class SVCModel(Model):
     def __init__(self):
         super().__init__()
-        self.model = None
-        self.model_sum = None
+        self.__model = None
+        self.__model_sum = None
 
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
-        self.y_pred = None
-
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
+
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
+
+    def __str__(self):
+        print(f'Support Vector Machine Classifier model: {self.__model}')
 
 
     def example_model_ohlc_win(self, validation_size=0.2):
@@ -257,76 +254,52 @@ class SVCModel(Model):
         X_train, X_test = X[:train_size], X[train_size:len(X)]
         y_train, y_test = y[:train_size], y[train_size:len(y)]
 
-        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
+        self.__X_train, self.__X_test, self.__y_train, self.__y_test = X_train, X_test, y_train, y_test
 
         regression = make_pipeline(StandardScaler(with_mean=True, with_std=True), SVC(C=100, tol=10e-6))
 
         regression.fit(X_train, y_train)
-        self.model = regression
+        self.__model = regression
 
         predicted = regression.predict(X_test)
-        self.y_pred = predicted
+        self.__y_pred = predicted
 
-        self.model_sum = self.model_summary()
+        self.__model_sum = self.__model_summary()
 
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-    def example_model_breast_cancer(self, validation_size=0.2):
-        X, y = datasets.load_breast_cancer(return_X_y=True)
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
-        train_size = int(len(X) * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(), SVC())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} Breast Cancer Dataset')
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
 
-    def example_model_rcv1(self, validation_size=0.2):
-        X, y = datasets.fetch_rcv1(return_X_y=True)
-
-        train_size = int(X.shape[0] * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
-        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
-
-        regression = make_pipeline(StandardScaler(with_mean=False), SVC())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
-
-    def create_model(self):
-        pass
-
-    def get_data(self):
-        pass
+    def get_data(self, dataframe):
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
+            raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
 
     def model_summary(self):
-        SVC_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
-        SVC_BALANCED_ACCURACY_SCORE = accuracy_score(y_pred=self.y_pred, y_true=self.y_test)
-        SVC_AVERAGE_PRECISION_SCORE = average_precision_score(y_score=self.y_pred, y_true=self.y_test)
-        SVC_BRIER_SCORE_LOSS = brier_score_loss(y_prob=self.y_pred, y_true=self.y_test)
-        SVC_F1_SCORE = f1_score(y_pred=self.y_pred, y_true=self.y_test)
-        SVC_LOG_LOSS = log_loss(y_pred=self.y_pred, y_true=self.y_test)
-        SVC_PRECISION = precision_score(y_pred=self.y_pred, y_true=self.y_test)
+        SVC_ACCURACY_SCORE = accuracy_score(y_pred=self.__y_pred, y_true=self.__y_test)
+        SVC_BALANCED_ACCURACY_SCORE = accuracy_score(y_pred=self.__y_pred, y_true=self.__y_test)
+        SVC_AVERAGE_PRECISION_SCORE = average_precision_score(y_score=self.__y_pred, y_true=self.__y_test)
+        SVC_BRIER_SCORE_LOSS = brier_score_loss(y_prob=self.__y_pred, y_true=self.__y_test)
+        SVC_F1_SCORE = f1_score(y_pred=self.__y_pred, y_true=self.__y_test)
+        SVC_LOG_LOSS = log_loss(y_pred=self.__y_pred, y_true=self.__y_test)
+        SVC_PRECISION = precision_score(y_pred=self.__y_pred, y_true=self.__y_test)
 
         summary = {
             'accuracy_score': SVC_ACCURACY_SCORE,
@@ -347,138 +320,128 @@ class SVCModel(Model):
         print(f'Saving model to {model_filename}...')
         print(f'Saving model summary to {model_summary_filename}...')
 
-        joblib.dump(self.model, model_filename)
-        joblib.dump(self.model_sum, model_summary_filename)
+        joblib.dump(self.__model, model_filename)
+        joblib.dump(self.__model_sum, model_summary_filename)
 
 
 class NuSVCModel(Model):
     def __init__(self):
         super().__init__()
-        pass
+        self.__model = None
+        self.__model_sum = None
+
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
 
-    def example_model_breast_cancer(self, validation_size=0.2):
-        X, y = datasets.load_breast_cancer(return_X_y=True)
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
 
-        train_size = int(len(X) * (1 - validation_size))
+    def __str__(self):
+        print(f'Nu Support Vector Machine Classifier model: {self.__model}')
 
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-        regression = make_pipeline(StandardScaler(), NuSVC())
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} Breast Cancer Dataset')
-
-
-    def example_model_rcv1(self, validation_size=0.2):
-        X, y = datasets.fetch_rcv1(return_X_y=True)
-
-        train_size = int(X.shape[0] * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
-        y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
-
-        regression = make_pipeline(StandardScaler(with_mean=False), NuSVC())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
-
-    def create_model(self):
-        pass
-
-    def get_data(self):
-        pass
+    def get_data(self, dataframe):
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
+            raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
     
     def model_summary(self):
-        pass
+        summary = {}
+        return summary
 
     def save_model(self):
         model_filename = 'src/api/models/NuSVC.pkl'
         print(f'Saving model to {model_filename}...')
-        joblib.dump(self.model, model_filename)
+        joblib.dump(self.__model, model_filename)
 
 
 class LinearSVCModel(Model):
     def __init__(self):
         super().__init__()
-        pass
+        self.__model = None
+        self.__model_sum = None
+
+        self.__X_train = None
+        self.__X_test = None
+        self.__y_train = None
+        self.__y_test = None
+        self.__y_pred = None
 
     def __del__(self):
-        pass
+        super().__del__()
 
-    def example_model_breast_cancer(self, validation_size=0.2):
-        X, y = datasets.load_breast_cancer(return_X_y=True)
+        del self.__model
+        del self.__model_sum
+        del self.__X_train
+        del self.__X_test
+        del self.__y_train
+        del self.__y_test
+        del self.__y_pred
 
-        train_size = int(len(X) * (1 - validation_size))
-
-        X_train, X_test = X[:train_size], X[train_size:len(X)]
-        y_train, y_test = y[:train_size], y[train_size:len(y)]
-
-        regression = make_pipeline(StandardScaler(), LinearSVC())
-
-        regression.fit(X_train, y_train)
-        predicted = regression.predict(X_test)
-
-        print(f'Accuracy: {accuracy_score(predicted, y_test)} Breast Cancer Dataset')
+    def __str__(self):
+        print(f'Linear Support Vector Machine Classifier model: {self.__model}')
 
 
-    def example_model_rcv1(self, validation_size=0.2):
-        # X, y = datasets.fetch_rcv1(return_X_y=True).todense()
+    def create_model(self, C: float=1.0, kernel: str='rbf', degree: int=3, gamma: str='scale', coef0: float=0.0, tol: float=1e-3, epsilon: float=0.1, shrinking: bool=True, cache_size: float=200.0, verbose: bool=False, max_iter: int=-1) -> None:
 
-        # train_size = int(X.shape[0] * (1 - validation_size))
+        if type(C) != float or type(kernel) != str or type(degree) != int or type(gamma) != str or type(coef0) != float or type(tol) != float or type(epsilon) != float or type(shrinking) != bool or type(cache_size) != float or type(verbose) != bool or type(max_iter) != int: 
+            raise TypeError
 
-        # X_train, X_test = X[:train_size], X[train_size:X.shape[0]]
-        # y_train, y_test = y[:train_size], y[train_size:y.shape[0]]
+        self.__model = make_pipeline(StandardScaler(), SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, tol=tol, epsilon=epsilon, shrinking=shrinking, cache_size=cache_size, verbose=verbose, max_iter=max_iter))
 
-        # regression = make_pipeline(StandardScaler(with_mean=False), LinearSVC())
-
-        # regression.fit(X_train, y_train)
-        # predicted = regression.predict(X_test)
-
-        # print(f'Accuracy: {accuracy_score(predicted, y_test)} RCV1 Dataset')
-        pass
-
-    def create_model(self):
-        pass
-
-    def get_data(self):
-        pass
+    def get_data(self, dataframe):
+        if type(dataframe) != type(pd.DataFrame()) and dataframe == None:
+            raise ValueError
+        return None
 
     def example(self):
-        pass
+        return None
 
-    def fit_model(self):
-        pass
+    def fit_model(self, X_train, y_train):
+        self.__model.fit(X_train, y_train)
 
-    def predict(self):
-        pass
+    def predict(self, X_pred):
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
 
     def evaluate_model(self):
-        pass
+        raise NotImplementedError
     
     def model_summary(self):
-        pass
+        summary = {}
+        return summary
 
     def save_model(self):
         model_filename = 'src/api/models/linearSVC.pkl'
         print(f'Saving model to {model_filename}...')
-        joblib.dump(self.model, model_filename)
+        joblib.dump(self.__model, model_filename)
