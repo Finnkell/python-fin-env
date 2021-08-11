@@ -7,7 +7,7 @@ import pytz
 from src.servers.server_mt5 import MetaTraderConnection
 import unittest
 
-server = MetaTraderConnection()
+server = MetaTraderConnection(server="XPMT5-Demo", login=64946322, password="30052000josePablo")
 server.set_magic_number()
 
 tickets = []

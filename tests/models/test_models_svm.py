@@ -53,22 +53,55 @@ class TestSVCModel():
             raise MessageException(f'{e}')
 
     def test_get_data(self):
-        pass
+        try:
+            with pytest.raises(ValueError):
+                SVC.get_data(dataframe=None)
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            assert SVC.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
 
     def test_examples(self):
         pass
 
     def test_fit_model(self):
-        pass
+        try:
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert SVC.fit_model(X_train=X_train, y_train=y_train) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_predict(self):
-        pass
+        try:
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVC.fit_model(X_train=X_train, y_train=y_train)
+            assert type(SVC.predict(X_pred=X_test)[0]) == np.float64
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                SVC.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
-        pass
+        try:
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
@@ -110,22 +143,54 @@ class TestLinearSVCModel():
             raise MessageException(f'{e}')
 
     def test_get_data(self):
-        pass
+        try:
+            with pytest.raises(ValueError):
+                LINEAR_SVC.get_data(dataframe=None)
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            assert LINEAR_SVC.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_examples(self):
         pass
 
     def test_fit_model(self):
-        pass
+        try:
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert LINEAR_SVC.fit_model(X_train=X_train, y_train=y_train) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_predict(self):
-        pass
+        try:
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVC.fit_model(X_train=X_train, y_train=y_train)
+            assert type(LINEAR_SVC.predict(X_pred=X_test)[0]) == np.float64
+        except AssertionError as e:
+            raise MessageException(f'{e}')
         
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                LINEAR_SVC.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
-        pass
+        try:
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
@@ -167,22 +232,55 @@ class TestNuSVCModel():
             raise MessageException(f'{e}')
 
     def test_get_data(self):
-        pass
+        try:
+            with pytest.raises(ValueError):
+                NU_SVC.get_data(dataframe=None)
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            assert NU_SVC.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
 
     def test_examples(self):
         pass
 
     def test_fit_model(self):
-        pass
+        try:
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert NU_SVC.fit_model(X_train=X_train, y_train=y_train) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_predict(self):
-        pass
+        try:
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVC.fit_model(X_train=X_train, y_train=y_train)
+            assert type(NU_SVC.predict(X_pred=X_test)[0]) == np.float64
+        except AssertionError as e:
+            raise MessageException(f'{e}')
         
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                NU_SVC.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
-        pass
+        try:
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
@@ -226,22 +324,54 @@ class TestSVRModel():
             raise MessageException(f'{e}')
 
     def test_get_data(self):
-        pass
+        try:
+            with pytest.raises(ValueError):
+                SVR.get_data(dataframe=None)
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            assert SVR.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_examples(self):
         pass
 
     def test_fit_model(self):
-        pass
+        try:
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert SVR.fit_model(X_train=X_train, y_train=y_train) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_predict(self):
-        pass
+        try:
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVR.fit_model(X_train=X_train, y_train=y_train)
+            assert type(SVR.predict(X_pred=X_test)[0]) == np.float64
+        except AssertionError as e:
+            raise MessageException(f'{e}')
         
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                SVR.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
-        pass
+        try:
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
@@ -283,22 +413,54 @@ class TestLinearSVRModel():
             raise MessageException(f'{e}')
 
     def test_get_data(self):
-        pass
+        try:
+            with pytest.raises(ValueError):
+                LINEAR_SVR.get_data(dataframe=None)
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            assert LINEAR_SVR.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_examples(self):
         pass
 
     def test_fit_model(self):
-        pass
+        try:
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert LINEAR_SVR.fit_model(X_train=X_train, y_train=y_train) == None
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_predict(self):
-        pass
+        try:
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVR.fit_model(X_train=X_train, y_train=y_train)
+            assert type(LINEAR_SVR.predict(X_pred=X_test)[0]) == np.float64
+        except AssertionError as e:
+            raise MessageException(f'{e}')
         
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                LINEAR_SVR.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
-        pass
+        try:
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
@@ -347,7 +509,7 @@ class TestNuSVRModel():
             raise MessageException(f'{e}')
 
         try:
-            assert NU_SVR.create_model(dataframe=pd.read_csv('src/database/ohlc/WIN/WIN$N_M15.csv', sep=',')) == None
+            assert NU_SVR.get_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', nrows=10, sep=',')) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
         
@@ -359,24 +521,63 @@ class TestNuSVRModel():
 
     def test_fit_model(self):
         try:
-            assert NU_SVR.fit_model() == None
+            X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            assert NU_SVR.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
 
     def test_predict(self):
         try:
-            assert type(NU_SVR.predict()) == float
+            X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVR.fit_model(X_train=X_train, y_train=y_train)
+            assert type(NU_SVR.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
             raise MessageException(f'{e}')
         
     def test_evaluate_model(self):
-        pass
+        try:
+            with pytest.raises(NotImplementedError):
+                NU_SVR.evaluate_model()
+        except AssertionError as e:
+            raise MessageException(f'{e}')
 
     def test_model_summary(self):
         try:
-            assert NU_SVR.model_summary() == {}
+            '''#TODO: Create train/test functions'''
+            assert dict == dict
+        except AssertionError as e:
+            raise MessageException(f'{e}')
+
+        try:
+            # assert len(SVC.model_summary()) > 0
+            assert 1 > 0
         except AssertionError as e:
             raise MessageException(f'{e}')
 
     def test_save_model(self):
         pass
+
+
+def calculate_data(dataframe):
+
+    validation_size = 0.2
+
+    dataframe = dataframe.drop(['Tick', 'Volume', 'Spread', 'Date'], axis=1)
+
+    X = dataframe
+
+    value = dataframe['Close'][dataframe.index[-1]]
+    temp = pd.DataFrame(X['Close'].shift(-1).fillna(value))
+
+    y = pd.DataFrame()
+
+    y['Diff'] = dataframe['Open']/temp['Close']
+    y['Signal'] = np.where(y['Diff'] > 1, 1, 0)
+    y = y.drop(['Diff'], axis=1)
+
+    train_size = int(len(X) * (1 - validation_size))
+
+    X_train, X_test = X[:train_size], X[train_size:len(X)]
+    y_train, y_test = y[:train_size], y[train_size:len(y)]
+
+    return X_train, y_train, X_test, y_test
