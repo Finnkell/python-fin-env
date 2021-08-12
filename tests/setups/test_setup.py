@@ -192,24 +192,23 @@ class TestSetup():
     def test_set_position_close(self):
         try:
             with pytest.raises(TypeError):
-                setup.set_position_close("123", "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT")
-                setup.set_position_close(123, 1105, "12/05", "BUY", 0.0, {}, "BOUGHT")
-                setup.set_position_close(123, "11/05", 1205, "BUY", 0.0, {}, "BOUGHT")
-                setup.set_position_close(123, "11/05", "12/05", 0, 0.0, {}, "BOUGHT")
-                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", {}, "BOUGHT")
-                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", "{}", "BOUGHT")
-                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", {}, 0)
+                setup.set_position_close("123", "11/05", "12/05", "BUY", 0.0, [], "BOUGHT")
+                setup.set_position_close(123, 1105, "12/05", "BUY", 0.0, [], "BOUGHT")
+                setup.set_position_close(123, "11/05", 1205, "BUY", 0.0, [], "BOUGHT")
+                setup.set_position_close(123, "11/05", "12/05", 0, 0.0, [], "BOUGHT")
+                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", [], "BOUGHT")
+                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", "[]", "BOUGHT")
+                setup.set_position_close(123, "11/05", "12/05", "BUY", "0.0", [], 0)
         except AssertionError as e:
             raise MessageException(f"{e}")
 
-
         try:
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
-            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, {}, "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
+            assert setup.set_position_close(123, "11/05", "12/05", "BUY", 0.0, [], "BOUGHT") == None
         except AssertionError as e:
             raise MessageException(f"{e}")

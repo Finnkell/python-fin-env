@@ -14,7 +14,7 @@ tickets = []
 results = []
 
 # global results
-symbol = 'WINQ21'
+symbol = 'WIN$N'
 group = None
 tickets = tickets
 results = results
@@ -167,7 +167,7 @@ class TestServer():
         try:
             assert result != None
         except:
-            raise MessageException(message=f"Couldn\'t put an buy order at {symbol}")
+            raise MessageException(message=f"Couldn\'t put a buy order at {symbol}")
 
         if result != None:
             tickets.append( result.order )
@@ -187,44 +187,36 @@ class TestServer():
         try:
             assert result != None
         except:
-            raise MessageException(message=f"Couldn\'t put an sell order at {symbol}")
+            raise MessageException(message=f"Couldn\'t put a sell order at {symbol}")
 
         if result != None:
-            tickets.append( result.order )
-
-    """" LIMIT ORDERS NEED TO BE IMPLEMENTED YET
+            tickets.append(result.order)
 
     def test_buy_limit(self):
-        global symbol
-        price = server.get_symbol_ask()
-        point = server.get_symbol_point()
+        price = server.get_symbol_info_ask(symbol='WINQ21')
+        point = server.get_symbol_info_trade_tick_size(symbol='WINQ21')
 
-        sl = price - 10*point
-        tp = price + 5*point
+        sl = 100.0
+        tp = 100.0
         try:
-            assert server.buy_limit(1.0, symbol, sl, tp, 0, "Buy-Limit Test"), "Couldn\'t put an buy limit order at {symbol}")
+            result = server.buy_limit(volume=1.0, symbol='WINQ21', price=price-100.0, limit_price=price-10.0, sl=sl, tp=tp, deviation=1, comment="Buy-Limit Test")
+            
+            assert result.comment == 'Request executed'
         except:
-            raise MessageException(message=f"Couldn\'t get {symbol} bid")
-
-        if server.last_order != None:
-            self.ticket.append( server.last_order )
+            raise MessageException(message=f"Couldn\'t set a buy limit order")
 
     def test_sell_limit(self):
-        global symbol
-        price = server.get_symbol_bid()
-        point = server.get_symbol_point()
+        price = server.get_symbol_info_bid(symbol='WINQ21')
+        point = server.get_symbol_info_trade_tick_size(symbol='WINQ21')
         
-        sl = price + 10*point
-        tp = price - 5*point
+        sl = 100.0
+        tp = 100.0
         try:
-            assert server.sell_limit(1.0, symbol, sl, tp, 0, "Sell-Limit Test"), "Couldn\'t put an sell limit order at {symbol}")
+            result = server.sell_limit(volume=1.0, symbol='WINQ21', price=price+100.0, limit_price=price+10.0, sl=sl, tp=tp, deviation=1, comment="Sell-Limit Test")
+            
+            assert result.comment == 'Request executed'
         except:
-            raise MessageException(message=f"Couldn\'t get {symbol} bid")
-
-        if server.last_order != None:
-            self.ticket.append( server.last_order )
-
-    """
+            raise MessageException(message=f"Couldn\'t set a sell limit order")
 
     def test_get_orders_history(self):
         global symbol
