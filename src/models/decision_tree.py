@@ -74,7 +74,8 @@ class DecisionTreeClassifierModel(Model):
         self.__model.fit(X_train, y_train)
 
     def predict(self, X_pred):
-        self.__y_repd self.__model.predict(X_pred)
+        self.__y_pred = self.__model.predict(X_pred)
+        return self.__y_pred
     
     def evaluate_model(self):
         raise NotImplementedError
