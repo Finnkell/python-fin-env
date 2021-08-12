@@ -9,8 +9,6 @@ colorama==0.4.4
 cycler==0.10.0
 debugpy==1.3.0
 decorator==5.0.9
-Django==3.2.4
-djangorestframework==3.12.4
 Flask==2.0.1
 httpcats==1.1.1
 idna==3.2
