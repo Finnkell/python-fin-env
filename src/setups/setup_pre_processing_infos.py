@@ -1,5 +1,7 @@
+from src.setups.setup import Setup
+
 class SetupPreProcessingInfos(object):
-    def __init__(self, setup: 'Setup') -> None:
+    def __init__(self, setup: Setup) -> None:
         self.__setup = setup
 
         self.__start_date = None

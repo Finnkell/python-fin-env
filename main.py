@@ -15,17 +15,13 @@ from src.backtest.backtest import Backtest
 
 start = time.perf_counter()
 
-dataframe = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
+df = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')
 
-server = MetaTraderConnection(server="XPMT5-Demo", login=64946322, password="30052000josePablo")
-
+server = MetaTraderConnection()
 setup = CrossMMSetupWIN(connection=server, symbol='WINQ21')
-backtest = Backtest(setup, dataframe)
 
-t1 = threading.Thread(target=backtest.run_backtest())
-
-t1.start()
-t1.join()
+backtest = Backtest(setup=setup, dataframe=df)
+backtest.run_backtest()
 
 finish = time.perf_counter()
 

@@ -55,7 +55,6 @@ class CrossMMSetupWIN(Setup):
         del self.__backtest_info
 
     def create_strategy(self, dataframe: pd.DataFrame()):
-
         if not {'Date', 'Open', 'High', 'Low', 'Close'}.issubset(dataframe.columns):
             raise ValueError
 
@@ -191,7 +190,7 @@ class CrossMMSetupWIN(Setup):
         
         self.__backtest_info['order'].append(
             {
-                'ticket': random.randint(1, 100000) + round(random.randint(1, 5)*random.random()) + price,
+                'ticket': random.randint(1, 100000) + round(random.randint(1, 5)*random.random()),
                 'date': date,
                 'price': price,
                 'volume': volume,
@@ -203,7 +202,7 @@ class CrossMMSetupWIN(Setup):
         )
 
     def set_position_close(self, ticket=None, start_date=None, end_date=None, side=None, price=None, position=None, comment=''):
-        if  type(ticket) != int or type(start_date) != str or type(end_date) != str or type(side) != str or type(price) != float or type(position) != dict or type(comment) != str:
+        if  type(ticket) != int or type(start_date) != str or type(end_date) != str or type(side) != str or type(price) != float or type(position) != list or type(comment) != str:
             raise TypeError
 
         if self.get_position_take_profit(ticket) == None or self.get_position_stop_loss(ticket) == None:

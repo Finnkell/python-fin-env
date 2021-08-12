@@ -71,6 +71,7 @@ class TestSVCModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVC.create_model()
             assert SVC.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -78,6 +79,7 @@ class TestSVCModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVC.create_model()
             SVC.fit_model(X_train=X_train, y_train=y_train)
             assert type(SVC.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
@@ -160,6 +162,7 @@ class TestLinearSVCModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVC.create_model()
             assert LINEAR_SVC.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -167,6 +170,7 @@ class TestLinearSVCModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVC.create_model()
             LINEAR_SVC.fit_model(X_train=X_train, y_train=y_train)
             assert type(LINEAR_SVC.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
@@ -250,6 +254,7 @@ class TestNuSVCModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVC.create_model()
             assert NU_SVC.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -257,6 +262,7 @@ class TestNuSVCModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVC.create_model()
             NU_SVC.fit_model(X_train=X_train, y_train=y_train)
             assert type(NU_SVC.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
@@ -341,6 +347,7 @@ class TestSVRModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVR.create_model()
             assert SVR.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -348,6 +355,7 @@ class TestSVRModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            SVR.create_model()
             SVR.fit_model(X_train=X_train, y_train=y_train)
             assert type(SVR.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
@@ -430,6 +438,8 @@ class TestLinearSVRModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVR.create_model()
+            LINEAR_SVR.fit_model(X_train=X_train, y_train=y_train)
             assert LINEAR_SVR.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -437,6 +447,7 @@ class TestLinearSVRModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            LINEAR_SVR.create_model()
             LINEAR_SVR.fit_model(X_train=X_train, y_train=y_train)
             assert type(LINEAR_SVR.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:
@@ -522,6 +533,7 @@ class TestNuSVRModel():
     def test_fit_model(self):
         try:
             X_train, y_train, _, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVR.create_model()
             assert NU_SVR.fit_model(X_train=X_train, y_train=y_train) == None
         except AssertionError as e:
             raise MessageException(f'{e}')
@@ -529,6 +541,7 @@ class TestNuSVRModel():
     def test_predict(self):
         try:
             X_train, y_train, X_test, _ = calculate_data(dataframe=pd.read_csv('src/database/ohlc/WIN$N_D1.csv', sep=','))
+            NU_SVR.create_model()
             NU_SVR.fit_model(X_train=X_train, y_train=y_train)
             assert type(NU_SVR.predict(X_pred=X_test)[0]) == np.float64
         except AssertionError as e:

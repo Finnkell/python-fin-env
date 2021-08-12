@@ -1,4 +1,5 @@
 from src.setups.setup_pre_processing_infos import SetupPreProcessingInfos
+from src.setups.setup import Setup
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,7 +8,7 @@ plt.style.use('seaborn')
 
 
 class Backtest(object):
-    def __init__(self, setup: 'Setup()', dataframe: pd.DataFrame()) -> None:
+    def __init__(self, setup: Setup, dataframe: pd.DataFrame()) -> None:
         self.__setup = setup
 
         self.__saldo = 100000
@@ -167,7 +168,7 @@ class Backtest(object):
             value = stack[0]
             stack.remove(value)
 
-            stack_info = (time, float(value), volume, signal)
+            stack_info = (str(time), float(value), float(volume), str(signal))
 
             results = self.setup_pre_processing_infos(stack_info)
 
@@ -289,9 +290,6 @@ class Backtest(object):
 
         plt.legend()
         plt.show()
-
-
-        
 
     def export_backtest_log_report(self, results: dict) -> print:
         self.__backtest_log_report_infos.append(results)
