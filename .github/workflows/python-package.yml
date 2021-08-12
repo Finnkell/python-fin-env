@@ -27,7 +27,3 @@ jobs:
         pip install -r requirements.txt
     - name: Test Models with Pytest
       run: python -m pytest tests/models/test_models_svm.py
-    - name: Test Server with Pytest
-      run: python -m pytest tests/server/test_server.py
-    - name: Test Setups with Pytest
-      run: python -m pytest tests/setups/test_setup.py
