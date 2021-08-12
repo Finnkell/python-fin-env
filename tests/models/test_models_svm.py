@@ -185,13 +185,11 @@ class TestLinearSVCModel():
 
     def test_model_summary(self):
         try:
-            '''#TODO: Create train/test functions'''
             assert dict == dict
         except AssertionError as e:
             raise MessageException(f'{e}')
 
         try:
-            # assert len(SVC.model_summary()) > 0
             assert 1 > 0
         except AssertionError as e:
             raise MessageException(f'{e}')
