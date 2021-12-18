@@ -53,6 +53,55 @@ class Backtest(object):
             results['start_date'] = stack_info[0]
 
             if setup_pre_processing_infos.have_positions():
+                if stack_info[3] == 'BUY':
+                    results['order_entry'] = True
+                    results['side'] = 'BUY'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif stack_info[3] == 'SELL':
+                    results['order_entry'] = True
+                    results['side'] = 'SELL'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif stack_info[3] == 'BUY_LIMIT':
+                    results['order_entry'] = True
+                    results['side'] = 'BUY'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif stack_info[3] == 'SELL_LIMIT':
+                    results['order_entry'] = True
+                    results['side'] = 'SELL'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif stack_info[3] == 'BUY_STOP':
+                    results['order_entry'] = True
+                    results['side'] = 'BUY'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+                elif stack_info[3] == 'SELL_STOP':
+                    results['order_entry'] = True
+                    results['side'] = 'SELL'
+                    results['take_profit'] = False
+                    results['stop_loss'] = False
+                    results['position_modify'] = False
+                    results['position_close'] = False
+                    results['positions_to_close'] = []
+
                 for order in setup_pre_processing_infos.get_orders():
                     if order['side'] == 'BUY':
                         if order['tp'] <= stack_info[1]:

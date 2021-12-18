@@ -406,7 +406,7 @@ class MetaTraderConnection():
             "type": m_type,
             "type_time": mt5.ORDER_TIME_DAY,
             "type_filling": mt5.ORDER_FILLING_FOK,
-            "magic": self.__magic_number,
+            "magic": magic,
             "comment": f"Position {order_request.request.type} closed by {m_type}",
         }
 

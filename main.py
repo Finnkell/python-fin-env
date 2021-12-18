@@ -13,6 +13,8 @@ from src.setups.cross_mm import CrossMMSetupWIN
 from src.setups.mfi import MFISetup
 from src.backtest.backtest import Backtest
 
+server_run()
+
 start = time.perf_counter()
 
 df = pd.read_csv('src/database/ohlc/WIN$N_M1.csv', sep=',')

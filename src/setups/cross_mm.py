@@ -187,6 +187,12 @@ class CrossMMSetupWIN(Setup):
         elif side == 'SELL':
             tp = price - self.get_take_profit()
             sl = price + self.get_stop_loss()
+        elif side == 'BUY_LIMIT':
+            tp = price - self.get_take_profit()
+            sl = price + self.get_stop_loss()
+        elif side == 'SELL_LIMIT':
+            tp = price - self.get_take_profit()
+            sl = price + self.get_stop_loss()
         
         self.__backtest_info['order'].append(
             {

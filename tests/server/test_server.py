@@ -193,26 +193,26 @@ class TestServer():
             tickets.append(result.order)
 
     def test_buy_limit(self):
-        price = server.get_symbol_info_ask(symbol='WINQ21')
-        point = server.get_symbol_info_trade_tick_size(symbol='WINQ21')
+        price = server.get_symbol_info_ask(symbol='WINZ21')
+        point = server.get_symbol_info_trade_tick_size(symbol='WINZ21')
 
         sl = 100.0
         tp = 100.0
         try:
-            result = server.buy_limit(volume=1.0, symbol='WINQ21', price=price-100.0, limit_price=price-10.0, sl=sl, tp=tp, deviation=1, comment="Buy-Limit Test")
+            result = server.buy_limit(volume=1.0, symbol='WINZ21', price=price-100.0, limit_price=price-10.0, sl=sl, tp=tp, deviation=1, comment="Buy-Limit Test")
             
             assert result.comment == 'Request executed'
         except:
             raise MessageException(message=f"Couldn\'t set a buy limit order")
 
     def test_sell_limit(self):
-        price = server.get_symbol_info_bid(symbol='WINQ21')
-        point = server.get_symbol_info_trade_tick_size(symbol='WINQ21')
+        price = server.get_symbol_info_bid(symbol='WINZ21')
+        point = server.get_symbol_info_trade_tick_size(symbol='WINZ21')
         
         sl = 100.0
         tp = 100.0
         try:
-            result = server.sell_limit(volume=1.0, symbol='WINQ21', price=price+100.0, limit_price=price+10.0, sl=sl, tp=tp, deviation=1, comment="Sell-Limit Test")
+            result = server.sell_limit(volume=1.0, symbol='WINZ21', price=price+100.0, limit_price=price+10.0, sl=sl, tp=tp, deviation=1, comment="Sell-Limit Test")
             
             assert result.comment == 'Request executed'
         except:
